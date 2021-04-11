@@ -1,3 +1,4 @@
+import socketIo, {Socket} from "socket.io"
 import express, {Express} from "express";
 import http from "http";
 
@@ -21,4 +22,9 @@ export function startExpressServer(port: number|string){
 
 export function useStaticServer(expressServer:Express){
   expressServer.use(express.static(publicFolderPath))
+}
+
+export function createSocketServer(httpServer: http.Server){
+  const ioServer = new socketIo.Server(httpServer);
+  return ioServer;
 }

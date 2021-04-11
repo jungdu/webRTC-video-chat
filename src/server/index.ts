@@ -1,8 +1,9 @@
-import { startExpressServer, useStaticServer } from "./createServer";
+import { createSocketServer, startExpressServer, useStaticServer } from "./createServer";
 
 main();
 
 async function main(){
-  const {expressServer} = await startExpressServer(8080);
-  useStaticServer(expressServer);  
+  const {expressServer, httpServer} = await startExpressServer(8080);
+  useStaticServer(expressServer);
+  createSocketServer(httpServer);
 }
