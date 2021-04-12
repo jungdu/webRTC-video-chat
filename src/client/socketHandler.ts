@@ -1,8 +1,8 @@
 import {Socket} from "socket.io-client"
-import RtcConnectionManager from "./RtcConnectionManager"
 import { AnswerData, CandidateData, OfferData, RtcConnectionType } from "./types";
+import managers from "./managers"
 
-export function addSocketHandler(socket: Socket, rtcConnectionManager:RtcConnectionManager){
+export function addSocketHandler(socket: Socket ){
   let socketId: string = "";
 
   socket.on("connect", () => {
@@ -11,14 +11,15 @@ export function addSocketHandler(socket: Socket, rtcConnectionManager:RtcConnect
     console.log("socket connected... socketId:", socket.id);
   });
 
-  addRTCSocketHandler(socket, rtcConnectionManager);
+  addRTCSocketHandler(socket);
 }
 
-function addRTCSocketHandler(socket:Socket, rtcConnectionManager:RtcConnectionManager){
+function addRTCSocketHandler(socket:Socket){
   socket.on('offer', async ({
     offer,
     offerSocketId,
   }:OfferData) => {
+    const { rtcConnectionManager } = managers;
     const rtcPeerConnection = rtcConnectionManager.createConnection(RtcConnectionType.ANSWER, offerSocketId);
     console.log("on offer ", rtcPeerConnection);
     rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, offerSocketId, RtcConnectionType.ANSWER)
@@ -38,6 +39,7 @@ function addRTCSocketHandler(socket:Socket, rtcConnectionManager:RtcConnectionMa
     answerSocketId,
     answer,
   }: AnswerData) => {
+    const { rtcConnectionManager } = managers;
     const rtcPeerConnection = rtcConnectionManager.getOfferConnection(answerSocketId);
     console.log("on answer :", rtcPeerConnection)
     if(rtcPeerConnection){
@@ -53,6 +55,7 @@ function addRTCSocketHandler(socket:Socket, rtcConnectionManager:RtcConnectionMa
     type,
   }: CandidateData) => {
     console.log("on candidate type", type);
+    const {rtcConnectionManager} = managers;
     const rtcPeerConnection = type === RtcConnectionType.OFFER ? rtcConnectionManager.getAnswerConnection(fromSocketId) :rtcConnectionManager.getOfferConnection(fromSocketId);
     if(!rtcPeerConnection){
       throw new Error("onCandidate:::No rtcPeerConnection")

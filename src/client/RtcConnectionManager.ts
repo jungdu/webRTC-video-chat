@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import managers from "./managers";
 import { CandidateData, RtcConnectionType } from "./types";
 
 const ICE_SERVERS = {
@@ -86,18 +87,15 @@ export default class RtcConnectionManager{
 
   handleDataChannel(this: RTCPeerConnection, event: RTCDataChannelEvent){
     const dataChannel = event.channel;
-    console.log("dataChannel :", dataChannel);
+    const {dataChannelManager} = managers;
+    dataChannelManager.registerDataChannel(dataChannel);
 
-    dataChannel.addEventListener('open', () => {
-      console.log("dataChannel opened!");
-    })
-
-    dataChannel.addEventListener('message', (event) => {
-      event.data
-    })
-
+    // TO FIX
+    // answer에서 offer로 핑 쏘는 로직
+    let count = 0;
     setInterval(() => {
-      dataChannel.send("ping")
+      count++;
+      dataChannelManager.broadcast(`ping from answer ${count}`);
     }, 1000)
   }
 }
