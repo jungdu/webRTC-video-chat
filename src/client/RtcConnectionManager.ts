@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import { CandidateData, RtcConnectionType } from "./types";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -26,29 +27,42 @@ export default class RtcConnectionManager{
     this.offerConnections[socketId] = connection;
   }
 
-  addAnswerConnection(socketId: string, connection: RTCPeerConnection){
+    addAnswerConnection(socketId: string, connection: RTCPeerConnection){
     this.answerConnections[socketId] = connection;
   }
 
-  addCandidateHandler(connection: RTCPeerConnection, socket: Socket, destSocketId: string, type: "offer"|"answer"){
-    console.log("addCandidateHandler");
+  addCandidateHandler(connection: RTCPeerConnection, socket: Socket, destSocketId: string, type: RtcConnectionType){
+    console.log("addCandidateHandler ");
     connection.onicecandidate = event => {
       console.log("icecandidate:::event:", event);
       const {candidate} = event;
       if(candidate){
-        socket.emit('candidate', {
-          candidate,
-          destSocketId,
-          fromSocketId: socket.id,
-          type,
-        })     
+        const data:CandidateData = {
+         candidate,
+         destSocketId,
+         fromSocketId: socket.id,
+         type, 
+        }
+        socket.emit('candidate', data)     
       }
     }
   }
 
-  createConnection(){
+  createConnection(type: RtcConnectionType, destSocketId: string){
     const connection = new RTCPeerConnection(ICE_SERVERS);
     connection.addEventListener('datachannel', this.handleDataChannel)
+    
+    switch(type){
+      case RtcConnectionType.OFFER:
+        this.addOfferConnection(destSocketId, connection);
+        break;
+      case RtcConnectionType.ANSWER:
+        this.addAnswerConnection(destSocketId, connection);
+        break;
+      default:
+        throw new Error("Invalid RTCPeerConnection ");
+    }
+
     return connection;
   }
 

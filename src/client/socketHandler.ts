@@ -1,5 +1,6 @@
 import {Socket} from "socket.io-client"
 import RtcConnectionManager from "./RtcConnectionManager"
+import { AnswerData, CandidateData, OfferData, RtcConnectionType } from "./types";
 
 export function addSocketHandler(socket: Socket, rtcConnectionManager:RtcConnectionManager){
   let socketId: string = "";
@@ -17,26 +18,27 @@ function addRTCSocketHandler(socket:Socket, rtcConnectionManager:RtcConnectionMa
   socket.on('offer', async ({
     offer,
     offerSocketId,
-  }) => {
-    const rtcPeerConnection = rtcConnectionManager.createConnection();
+  }:OfferData) => {
+    const rtcPeerConnection = rtcConnectionManager.createConnection(RtcConnectionType.ANSWER, offerSocketId);
     console.log("on offer ", rtcPeerConnection);
-    rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, offerSocketId, "offer")
+    rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, offerSocketId, RtcConnectionType.ANSWER)
     rtcPeerConnection.setRemoteDescription(offer);
     const answer = await rtcPeerConnection.createAnswer();
     rtcPeerConnection.setLocalDescription(answer);
-    rtcConnectionManager.addAnswerConnection(offerSocketId, rtcPeerConnection);
-    socket.emit('answer', {
+    
+    const data: AnswerData = {
       answerSocketId: socket.id,
       answer,
       offerSocketId,
-    });
+    }
+    socket.emit('answer', data);
   });
 
   socket.on('answer', ({
-    offerSocketId,
+    answerSocketId,
     answer,
-  }) => {
-    const rtcPeerConnection = rtcConnectionManager.getOfferConnection(offerSocketId);
+  }: AnswerData) => {
+    const rtcPeerConnection = rtcConnectionManager.getOfferConnection(answerSocketId);
     console.log("on answer :", rtcPeerConnection)
     if(rtcPeerConnection){
       rtcPeerConnection.setRemoteDescription(answer);
@@ -49,9 +51,9 @@ function addRTCSocketHandler(socket:Socket, rtcConnectionManager:RtcConnectionMa
     candidate,
     fromSocketId,
     type,
-  }) => {
+  }: CandidateData) => {
     console.log("on candidate type", type);
-    const rtcPeerConnection = type === "offer" ? rtcConnectionManager.getAnswerConnection(fromSocketId) :rtcConnectionManager.getOfferConnection(fromSocketId);
+    const rtcPeerConnection = type === RtcConnectionType.OFFER ? rtcConnectionManager.getAnswerConnection(fromSocketId) :rtcConnectionManager.getOfferConnection(fromSocketId);
     if(!rtcPeerConnection){
       throw new Error("onCandidate:::No rtcPeerConnection")
     }

@@ -1,23 +1,24 @@
 import {Socket} from "socket.io-client";
 import RtcConnectionManager from "./RtcConnectionManager";
+import { OfferData, RtcConnectionType } from "./types";
 
 export async function connectRTCPeer(socket: Socket, answerSocketId: string, rtcConnectionManager:RtcConnectionManager){
   if(!socket.id){
     throw new Error("connectRTCPeer:::No socket id");
   }
 
-  const rtcPeerConnection = rtcConnectionManager.createConnection();
-  rtcConnectionManager.addOfferConnection(socket.id, rtcPeerConnection);
-  rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, answerSocketId, "offer");
+  const rtcPeerConnection = rtcConnectionManager.createConnection(RtcConnectionType.OFFER, answerSocketId);
+  rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, answerSocketId, RtcConnectionType.OFFER);
   createDataChannel(rtcPeerConnection);
   const offer = await rtcPeerConnection.createOffer();
   rtcPeerConnection.setLocalDescription(offer);
   
-  socket.emit('offer', {
+  const data:OfferData = {
     answerSocketId,
     offer,
     offerSocketId: socket.id,
-  });
+  }
+  socket.emit('offer', data);
 }
 
 function createDataChannel(peerConnection: RTCPeerConnection){
