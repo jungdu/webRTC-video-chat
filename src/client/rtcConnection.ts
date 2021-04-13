@@ -20,12 +20,4 @@ export async function connectRTCPeer(socket: Socket, answerSocketId: string ){
     offerSocketId: socket.id,
   }
   socket.emit('offer', data);
-
-  // TO FIX
-  // offer에서 answer로 ping 쏘는 로직
-  let count = 0;
-  setInterval(() => {
-    count++
-    dataChannelManager.broadcast(`ping from offer(${socket.id}): ${count}`);
-  }, 1000)
 }

@@ -28,7 +28,7 @@ export default class RtcConnectionManager{
     this.offerConnections[socketId] = connection;
   }
 
-    addAnswerConnection(socketId: string, connection: RTCPeerConnection){
+  addAnswerConnection(socketId: string, connection: RTCPeerConnection){
     this.answerConnections[socketId] = connection;
   }
 
@@ -89,13 +89,5 @@ export default class RtcConnectionManager{
     const dataChannel = event.channel;
     const {dataChannelManager} = managers;
     dataChannelManager.registerDataChannel(dataChannel);
-
-    // TO FIX
-    // answer에서 offer로 핑 쏘는 로직
-    let count = 0;
-    setInterval(() => {
-      count++;
-      dataChannelManager.broadcast(`ping from answer ${count}`);
-    }, 1000)
   }
 }

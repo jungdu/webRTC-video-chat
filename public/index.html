@@ -5,13 +5,27 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <style>
+    ul{
+      list-style: none;
+    }
+  </style>
 </head>
 <body>
   <p>
     socket id: <span id="socketIdSpan">disconnected</span>
   </p>
+  <br>
   <input type="text" id="answerSocketId">
   <button id="connectBtn">CONNECT</button>
+  <br>
+  <br>
+  <input type="text" id="messageInput">
+  <button id="sendBtn">SEND</button>
   <script src="./bundle.js"></script>
+  <h3>Messages</h3>
+  <ul id="messageUl">
+
+  </ul>
 </body>
 </html>
