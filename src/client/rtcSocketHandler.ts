@@ -2,19 +2,7 @@ import {Socket} from "socket.io-client"
 import { AnswerData, CandidateData, OfferData, RtcConnectionType } from "./types";
 import managers from "./managers"
 
-export function addSocketHandler(socket: Socket ){
-  let socketId: string = "";
-
-  socket.on("connect", () => {
-    socketId = socket.id;
-    updateSocketId(socketId);
-    console.log("socket connected... socketId:", socket.id);
-  });
-
-  addRTCSocketHandler(socket);
-}
-
-function addRTCSocketHandler(socket:Socket){
+export function addRtcSocketHandler(socket:Socket){
   socket.on('offer', async ({
     offer,
     offerSocketId,
@@ -62,9 +50,4 @@ function addRTCSocketHandler(socket:Socket){
     }
     rtcPeerConnection.addIceCandidate(candidate);
   })
-}
-
-function updateSocketId(socketId:string){
-  const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement;
-  socketIdSpan.innerHTML = socketId;
 }
