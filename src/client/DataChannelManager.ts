@@ -28,6 +28,7 @@ export default class DataChannelManager {
   
     dataChannel.addEventListener('close', () => {
       console.log("dataChannel onClose");
+      this.removeClosedChannels();
       const {onClose} = this.handlers;
       if(onClose) onClose();
     })
@@ -50,6 +51,10 @@ export default class DataChannelManager {
   registerDataChannel(dataChannel: RTCDataChannel){
     this.dataChannels.push(dataChannel);
     this.addDataChannelHandlers(dataChannel);
+  }
+
+  removeClosedChannels(){
+    this.dataChannels.filter(dataChannel => dataChannel.readyState === "closed")
   }
 
   setHandlers(handlers: DataChannelHandlers){
