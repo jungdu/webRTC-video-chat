@@ -9,7 +9,7 @@ const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
 const { socketManager, dataChannelManager } = managers;
 socketManager.init("http://127.0.0.1:8080/", {
   onUpdateSocketId: (socketId) => {
-    socketIdSpan.innerHTML = socketId;
+    socketIdSpan.innerHTML = socketId || "disconnected";
   }
 })
 

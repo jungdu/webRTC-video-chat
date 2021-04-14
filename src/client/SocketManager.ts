@@ -2,7 +2,7 @@ import {io, Socket} from "socket.io-client";
 import { addRtcSocketHandler } from "./rtcSocketHandler";
 
 interface SocketHandlers {
-  onUpdateSocketId?: (id: string) => void;
+  onUpdateSocketId?: (id: string | null) => void;
 }
 
 export default class SocketManager{
@@ -21,8 +21,13 @@ export default class SocketManager{
   addSocketHandler(socket: Socket){
     socket.on("connect", () => {
       this.setSocketId(socket.id);
-      console.log("socket connected... socketId:", socket.id);
+      console.log(`socket connected (socketId: ${socket.id})`);
     });
+    socket.on('disconnect', () => {
+      this.setSocketId(null);
+      console.log("socket disconnected");
+
+    })
     addRtcSocketHandler(socket)
   }
 
@@ -42,7 +47,7 @@ export default class SocketManager{
     this._socket = socket;
   }
 
-  setSocketId(id: string){
+  setSocketId(id: string | null){
     this.socketId = id;
     if(this.handlers.onUpdateSocketId){
       this.handlers.onUpdateSocketId(id);
