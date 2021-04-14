@@ -6,8 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <style>
+    ul,li{
+      margin: 0;
+      padding: 0;
+    }
     ul{
       list-style: none;
+    }
+    .connections {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 300px;
     }
   </style>
 </head>
@@ -27,5 +38,10 @@
   <ul id="messageUl">
 
   </ul>
+  <div class="connections">
+    <h3>Connection List</h3>
+    <ul id="connectionUl">
+    </ul>
+  </div>
 </body>
 </html>

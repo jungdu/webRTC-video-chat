@@ -2,13 +2,13 @@ import { Socket } from "socket.io-client";
 import managers from "./managers";
 import { CandidateData, RtcConnectionType } from "./types";
 
+interface RtcConnectionHandlers {
+  onAddConnection?: (socketId: string) => void;
+  onCloseConnection?: (socketId: string) => void;
+}
 interface Connections {
-  [RtcConnectionType.ANSWER]: {
-    [id: string]: RTCPeerConnection
-  };
-  [RtcConnectionType.OFFER]: {
-    [id: string]: RTCPeerConnection
-  }; 
+  [RtcConnectionType.ANSWER]: Map<string, RTCPeerConnection>;
+  [RtcConnectionType.OFFER]: Map<string, RTCPeerConnection>;
 }
 
 const ICE_SERVERS = {
@@ -20,30 +20,21 @@ const ICE_SERVERS = {
 
 export default class RtcConnectionManager{
   connections:Connections= {
-    [RtcConnectionType.ANSWER]: {},
-    [RtcConnectionType.OFFER]: {}, 
+    [RtcConnectionType.ANSWER]: new Map(),
+    [RtcConnectionType.OFFER]: new Map(), 
   }
-
-  offerConnections:{
-    [id:string]: RTCPeerConnection
-  } = {};
-  answerConnections:{
-    [id:string]: RTCPeerConnection
-  } = {};
+  handlers: RtcConnectionHandlers = {};
 
   constructor(){
     // @ts-expect-error
-    window.offerConnections = this.offerConnections;
+    window.offerConnections = this.connections[RtcConnectionType.OFFER];
     // @ts-expect-error
-    window.answerConnections = this.answerConnections;
+    window.answerConnections = this.connections[RtcConnectionType.ANSWER];
   }
 
-  addOfferConnection(socketId: string, connection: RTCPeerConnection){
-    this.connections[RtcConnectionType.OFFER][socketId] = connection;
-  }
-
-  addAnswerConnection(socketId: string, connection: RTCPeerConnection){
-    this.connections[RtcConnectionType.ANSWER][socketId] = connection;
+  addConnection(type: RtcConnectionType, socketId:string, connection: RTCPeerConnection){
+    this.connections[type].set(socketId, connection);
+    if(this.handlers.onAddConnection) this.handlers.onAddConnection(socketId);
   }
 
   addCandidateHandler(connection: RTCPeerConnection, socket: Socket, destSocketId: string, type: RtcConnectionType){
@@ -67,46 +58,45 @@ export default class RtcConnectionManager{
     const connection = new RTCPeerConnection(ICE_SERVERS);
     connection.addEventListener('datachannel', this.handleDataChannel)
     connection.addEventListener('iceconnectionstatechange', () => {
+      console.log("iceconnectionstatechange");
       this.handleConnectionStateChange(connection, type, destSocketId)
     })
     
-    switch(type){
-      case RtcConnectionType.OFFER:
-        this.addOfferConnection(destSocketId, connection);
-        break;
-      case RtcConnectionType.ANSWER:
-        this.addAnswerConnection(destSocketId, connection);
-        break;
-      default:
-        throw new Error("Invalid RTCPeerConnection ");
-    }
-
+    this.addConnection(type, destSocketId, connection)
     return connection;
   }
 
-  getAnswerConnection(socketId: string){
-    const connection = this.connections[RtcConnectionType.ANSWER][socketId];
-    if(connection){
-      return connection
+  deleteConnection(type: RtcConnectionType, socketId: string){
+    console.log("this.connections[type] before delete:", this.connections[type])
+    if(this.connections[type].has(socketId)){
+      this.connections[type].delete(socketId);
+      console.log("this.connections[type] after delete:", this.connections[type])
+      if(this.handlers.onCloseConnection) this.handlers.onCloseConnection(socketId);
     }else{
-      throw new Error("No answer connection")
+      throw new Error("No connection to delete");
     }
   }
 
-  getOfferConnection(socketId: string){
-    const connection = this.connections[RtcConnectionType.OFFER][socketId];
-    if(connection){
-      return connection;
+  getConnection(type: RtcConnectionType, socketId:string){
+    if(this.connections[type].has(socketId)){
+      return this.connections[type].get(socketId)
     }else{
-      throw new Error("No offer connection")
+      throw new Error("No connection to return");
     }
+  }
+
+  getConnectionIds(){
+    return [
+      ...this.connections[RtcConnectionType.ANSWER].keys(),
+      ...this.connections[RtcConnectionType.OFFER].keys()
+    ]
   }
 
   handleConnectionStateChange = (connection: RTCPeerConnection,type: RtcConnectionType, destSocketId: string) => {
-    switch(connection.connectionState){
-      case "closed":
+    switch(connection.iceConnectionState){
+      case "disconnected":
         console.log(`RTCConnection closed (socketId: ${destSocketId})`);
-        delete this.connections[type][destSocketId];
+        this.deleteConnection(type, destSocketId);
         break;
       default:
     }
@@ -116,5 +106,9 @@ export default class RtcConnectionManager{
     const dataChannel = event.channel;
     const {dataChannelManager} = managers;
     dataChannelManager.registerDataChannel(dataChannel);
+  }
+
+  setHandlers(handlers: RtcConnectionHandlers){
+    this.handlers = handlers;
   }
 }

@@ -28,7 +28,7 @@ export function addRtcSocketHandler(socket:Socket){
     answer,
   }: AnswerData) => {
     const { rtcConnectionManager } = managers;
-    const rtcPeerConnection = rtcConnectionManager.getOfferConnection(answerSocketId);
+    const rtcPeerConnection = rtcConnectionManager.getConnection(RtcConnectionType.OFFER, answerSocketId);
     console.log("on answer :", rtcPeerConnection)
     if(rtcPeerConnection){
       rtcPeerConnection.setRemoteDescription(answer);
@@ -44,7 +44,10 @@ export function addRtcSocketHandler(socket:Socket){
   }: CandidateData) => {
     console.log("on candidate type", type);
     const {rtcConnectionManager} = managers;
-    const rtcPeerConnection = type === RtcConnectionType.OFFER ? rtcConnectionManager.getAnswerConnection(fromSocketId) :rtcConnectionManager.getOfferConnection(fromSocketId);
+
+    const rtcPeerConnection = type === RtcConnectionType.OFFER 
+      ? rtcConnectionManager.getConnection(RtcConnectionType.ANSWER,fromSocketId) 
+      : rtcConnectionManager.getConnection(RtcConnectionType.OFFER, fromSocketId);
     if(!rtcPeerConnection){
       throw new Error("onCandidate:::No rtcPeerConnection")
     }
