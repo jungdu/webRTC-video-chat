@@ -2,6 +2,15 @@ import { Socket } from "socket.io-client";
 import managers from "./managers";
 import { CandidateData, RtcConnectionType } from "./types";
 
+interface Connections {
+  [RtcConnectionType.ANSWER]: {
+    [id: string]: RTCPeerConnection
+  };
+  [RtcConnectionType.OFFER]: {
+    [id: string]: RTCPeerConnection
+  }; 
+}
+
 const ICE_SERVERS = {
   iceServers: [
     { urls: "stun:stun.services.mozilla.com" },
@@ -10,6 +19,11 @@ const ICE_SERVERS = {
 };
 
 export default class RtcConnectionManager{
+  connections:Connections= {
+    [RtcConnectionType.ANSWER]: {},
+    [RtcConnectionType.OFFER]: {}, 
+  }
+
   offerConnections:{
     [id:string]: RTCPeerConnection
   } = {};
@@ -25,11 +39,11 @@ export default class RtcConnectionManager{
   }
 
   addOfferConnection(socketId: string, connection: RTCPeerConnection){
-    this.offerConnections[socketId] = connection;
+    this.connections[RtcConnectionType.OFFER][socketId] = connection;
   }
 
   addAnswerConnection(socketId: string, connection: RTCPeerConnection){
-    this.answerConnections[socketId] = connection;
+    this.connections[RtcConnectionType.ANSWER][socketId] = connection;
   }
 
   addCandidateHandler(connection: RTCPeerConnection, socket: Socket, destSocketId: string, type: RtcConnectionType){
@@ -52,6 +66,9 @@ export default class RtcConnectionManager{
   createConnection(type: RtcConnectionType, destSocketId: string){
     const connection = new RTCPeerConnection(ICE_SERVERS);
     connection.addEventListener('datachannel', this.handleDataChannel)
+    connection.addEventListener('iceconnectionstatechange', () => {
+      this.handleConnectionStateChange(connection, type, destSocketId)
+    })
     
     switch(type){
       case RtcConnectionType.OFFER:
@@ -67,17 +84,8 @@ export default class RtcConnectionManager{
     return connection;
   }
 
-  getOfferConnection(socketId: string){
-    const connection = this.offerConnections[socketId];
-    if(connection){
-      return connection;
-    }else{
-      throw new Error("No offer connection")
-    }
-  }
-
   getAnswerConnection(socketId: string){
-    const connection = this.answerConnections[socketId];
+    const connection = this.connections[RtcConnectionType.ANSWER][socketId];
     if(connection){
       return connection
     }else{
@@ -85,7 +93,26 @@ export default class RtcConnectionManager{
     }
   }
 
-  handleDataChannel(this: RTCPeerConnection, event: RTCDataChannelEvent){
+  getOfferConnection(socketId: string){
+    const connection = this.connections[RtcConnectionType.OFFER][socketId];
+    if(connection){
+      return connection;
+    }else{
+      throw new Error("No offer connection")
+    }
+  }
+
+  handleConnectionStateChange = (connection: RTCPeerConnection,type: RtcConnectionType, destSocketId: string) => {
+    switch(connection.connectionState){
+      case "closed":
+        console.log(`RTCConnection closed (socketId: ${destSocketId})`);
+        delete this.connections[type][destSocketId];
+        break;
+      default:
+    }
+  }
+
+  handleDataChannel = (event: RTCDataChannelEvent) => {
     const dataChannel = event.channel;
     const {dataChannelManager} = managers;
     dataChannelManager.registerDataChannel(dataChannel);
