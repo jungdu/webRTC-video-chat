@@ -1,6 +1,6 @@
-import { connectRTCPeer } from "./rtcConnection";
-import managers from "./managers";
-import RtcConnectionManager from "./RtcConnectionManager";
+import { connectRTCPeer } from "./connection/rtcConnection";
+import managers from "./connection/managers";
+import RtcConnectionManager from "./connection/RtcConnectionManager";
 
 const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
 const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
