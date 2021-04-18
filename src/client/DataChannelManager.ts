@@ -1,8 +1,8 @@
 
 interface DataChannelHandlers{
-  onOpen?: () => void;
-  onMessage?: (event: MessageEvent) => void;
-  onClose?: () => void;
+  onOpen?: (socketId: string) => void;
+  onMessage?: (event: MessageEvent, socketId: string) => void;
+  onClose?: (socketId: string) => void;
 }
 export default class DataChannelManager {
   dataChannels: RTCDataChannel[] = [];
@@ -13,24 +13,24 @@ export default class DataChannelManager {
     window.dataChannels = this.dataChannels;
   }
 
-  addDataChannelHandlers(dataChannel: RTCDataChannel){
+  addDataChannelHandlers(dataChannel: RTCDataChannel, socketId: string){
     dataChannel.addEventListener('open', () => {
       console.log("dataChannel onOpen")
       const {onOpen} = this.handlers;
-      if(onOpen) onOpen();
+      if(onOpen) onOpen(socketId);
     })
   
     dataChannel.addEventListener('message', (event) => {
       console.log("dataChannel onMessage event.data :", event.data)
       const {onMessage} = this.handlers;
-      if(onMessage) onMessage(event);
+      if(onMessage) onMessage(event, socketId);
     })
   
     dataChannel.addEventListener('close', () => {
       console.log("dataChannel onClose");
       this.removeClosedChannels();
       const {onClose} = this.handlers;
-      if(onClose) onClose();
+      if(onClose) onClose(socketId);
     })
   }
 
@@ -41,16 +41,16 @@ export default class DataChannelManager {
     });
   }
 
-  createDataChannel(peerConnection: RTCPeerConnection){
+  createDataChannel(peerConnection: RTCPeerConnection, socketId:string){
     const dataChannel = peerConnection.createDataChannel('basicDataChannel');
     dataChannel.binaryType = "arraybuffer";
     this.dataChannels.push(dataChannel);
-    this.addDataChannelHandlers(dataChannel);
+    this.addDataChannelHandlers(dataChannel, socketId);
   }
 
-  registerDataChannel(dataChannel: RTCDataChannel){
+  registerDataChannel(dataChannel: RTCDataChannel, socketId:string){
     this.dataChannels.push(dataChannel);
-    this.addDataChannelHandlers(dataChannel);
+    this.addDataChannelHandlers(dataChannel, socketId);
   }
 
   removeClosedChannels(){

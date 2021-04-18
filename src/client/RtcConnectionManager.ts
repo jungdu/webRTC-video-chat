@@ -56,7 +56,11 @@ export default class RtcConnectionManager{
 
   createConnection(type: RtcConnectionType, destSocketId: string){
     const connection = new RTCPeerConnection(ICE_SERVERS);
-    connection.addEventListener('datachannel', this.handleDataChannel)
+
+    connection.addEventListener('datachannel', (event) => {
+      this.handleDataChannel(event, destSocketId)
+    })
+
     connection.addEventListener('iceconnectionstatechange', () => {
       console.log("iceconnectionstatechange");
       this.handleConnectionStateChange(connection, type, destSocketId)
@@ -102,10 +106,10 @@ export default class RtcConnectionManager{
     }
   }
 
-  handleDataChannel = (event: RTCDataChannelEvent) => {
+  handleDataChannel = (event: RTCDataChannelEvent, socketId: string) => {
     const dataChannel = event.channel;
     const {dataChannelManager} = managers;
-    dataChannelManager.registerDataChannel(dataChannel);
+    dataChannelManager.registerDataChannel(dataChannel, socketId);
   }
 
   setHandlers(handlers: RtcConnectionHandlers){

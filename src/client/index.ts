@@ -24,11 +24,11 @@ rtcConnectionManager.setHandlers({
 })
 
 dataChannelManager.setHandlers({
-  onMessage: (event) => {
+  onMessage: (event, socketId) => {
     if(event.data){
       const messageUl = document.getElementById("messageUl") as HTMLUListElement;
       const li = document.createElement('li');
-      li.innerHTML = event.data;
+      li.innerHTML = `<b>${socketId}</b> ${event.data}`;
       messageUl.appendChild(li);
     }
   }
@@ -46,8 +46,8 @@ sendBtn.addEventListener('click', () => {
     if(dataChannelManager.dataChannels.length < 1){
       alert("연결된 dataChannel이 없습니다.")
     }else{
-      dataChannelManager.broadcast(`<b>${socketManager.socketId}</b>: ${messageInput.value}`);
-      messageInput.innerHTML = "";
+      dataChannelManager.broadcast(messageInput.value);
+      messageInput.value = "";
     }
   }
 })

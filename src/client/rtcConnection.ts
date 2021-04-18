@@ -10,7 +10,7 @@ export async function connectRTCPeer(socket: Socket, answerSocketId: string ){
   const rtcPeerConnection = rtcConnectionManager.createConnection(RtcConnectionType.OFFER, answerSocketId);
   rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, answerSocketId, RtcConnectionType.OFFER);
   // createOffer 전에 dataChannel 생성 해둬야함!
-  dataChannelManager.createDataChannel(rtcPeerConnection);
+  dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);
   const offer = await rtcPeerConnection.createOffer();
   rtcPeerConnection.setLocalDescription(offer);
   
