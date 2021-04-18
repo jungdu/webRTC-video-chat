@@ -1,18 +1,25 @@
 import { connectRTCPeer } from "./connection/rtcConnection";
-import managers from "./connection/managers";
 import RtcConnectionManager from "./connection/RtcConnectionManager";
+import SocketManager from "./connection/SocketManager";
+import DataChannelManager from "./connection/DataChannelManager";
+import { addRtcSocketHandler } from "./connection/rtcSocketHandler";
 
 const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
 const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
 const answerSocketIdInput = document.getElementById("answerSocketId") as HTMLInputElement;
 const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
 
-const { socketManager, dataChannelManager, rtcConnectionManager } = managers;
-socketManager.init("http://127.0.0.1:8080/", {
+const socketManager = new SocketManager();
+const dataChannelManager = new DataChannelManager();
+const rtcConnectionManager = new RtcConnectionManager();
+
+const socket = socketManager.init("http://127.0.0.1:8080/", {
   onUpdateSocketId: (socketId) => {
     socketIdSpan.innerHTML = socketId || "disconnected";
   }
 })
+addRtcSocketHandler(socket, rtcConnectionManager, dataChannelManager);
+
 
 rtcConnectionManager.setHandlers({
   onAddConnection: () => {
@@ -37,7 +44,7 @@ dataChannelManager.setHandlers({
 connectBtn.addEventListener('click', () => {
   const answerSocketId = answerSocketIdInput.value;
   console.log("trying connect " + answerSocketId);
-  connectRTCPeer(socketManager.socket, answerSocketId, );
+  connectRTCPeer(socketManager.socket, answerSocketId, rtcConnectionManager, dataChannelManager);
 })
 
 sendBtn.addEventListener('click', () => {

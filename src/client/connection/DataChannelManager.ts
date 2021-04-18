@@ -42,10 +42,18 @@ export default class DataChannelManager {
   }
 
   createDataChannel(peerConnection: RTCPeerConnection, socketId:string){
+    this.addRtcDataChannelHandler(peerConnection, socketId);
     const dataChannel = peerConnection.createDataChannel('basicDataChannel');
     dataChannel.binaryType = "arraybuffer";
     this.dataChannels.push(dataChannel);
     this.addDataChannelHandlers(dataChannel, socketId);
+  }
+
+  addRtcDataChannelHandler (rtcConnection: RTCPeerConnection, socketId: string){
+    rtcConnection.addEventListener('datachannel', (event) => {
+      const dataChannel = event.channel;
+      this.registerDataChannel(dataChannel, socketId);
+    })
   }
 
   registerDataChannel(dataChannel: RTCDataChannel, socketId:string){

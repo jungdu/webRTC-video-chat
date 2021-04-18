@@ -26,9 +26,7 @@ export default class SocketManager{
     socket.on('disconnect', () => {
       this.setSocketId(null);
       console.log("socket disconnected");
-
-    })
-    addRtcSocketHandler(socket)
+    });
   }
 
   connectSocket(url: string){
@@ -41,6 +39,7 @@ export default class SocketManager{
     this.handlers = handlers;
     this.connectSocket(socketUrl);
     this.addSocketHandler(this.socket);
+    return this.socket;
   }
 
   setSocket(socket: Socket){

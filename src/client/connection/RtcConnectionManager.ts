@@ -1,5 +1,4 @@
 import { Socket } from "socket.io-client";
-import managers from "./managers";
 import { CandidateData, RtcConnectionType } from "./types";
 
 interface RtcConnectionHandlers {
@@ -57,10 +56,6 @@ export default class RtcConnectionManager{
   createConnection(type: RtcConnectionType, destSocketId: string){
     const connection = new RTCPeerConnection(ICE_SERVERS);
 
-    connection.addEventListener('datachannel', (event) => {
-      this.handleDataChannel(event, destSocketId)
-    })
-
     connection.addEventListener('iceconnectionstatechange', () => {
       console.log("iceconnectionstatechange");
       this.handleConnectionStateChange(connection, type, destSocketId)
@@ -104,12 +99,6 @@ export default class RtcConnectionManager{
         break;
       default:
     }
-  }
-
-  handleDataChannel = (event: RTCDataChannelEvent, socketId: string) => {
-    const dataChannel = event.channel;
-    const {dataChannelManager} = managers;
-    dataChannelManager.registerDataChannel(dataChannel, socketId);
   }
 
   setHandlers(handlers: RtcConnectionHandlers){
