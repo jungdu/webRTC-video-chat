@@ -24,8 +24,9 @@ export default class RtcConnectionManager{
   }
   handlers: RtcConnectionHandlers = {};
   socket: Socket;
+  dataChannelManager: DataChannelManager;
 
-  constructor(socket:Socket){
+  constructor(socket:Socket, dataChannelManager: DataChannelManager){
     // 디버깅 용
     // @ts-expect-error
     window.offerConnections = this.connections[RtcConnectionType.OFFER];
@@ -33,6 +34,7 @@ export default class RtcConnectionManager{
     window.answerConnections = this.connections[RtcConnectionType.ANSWER];
     
     this.socket = socket;
+    this.dataChannelManager = dataChannelManager;
   }
 
   addConnection(type: RtcConnectionType, socketId:string, connection: RTCPeerConnection){
@@ -107,6 +109,28 @@ export default class RtcConnectionManager{
       }
       rtcPeerConnection.addIceCandidate(candidate);
     })
+  }
+
+  async connectPeer(answerSocketId: string){
+    if(!this.socket.id){
+      throw new Error("connectRTCPeer:::No socket id");
+    }
+
+    const rtcPeerConnection = this.createConnection(RtcConnectionType.OFFER, answerSocketId);
+    this.addCandidateHandler(rtcPeerConnection, answerSocketId, RtcConnectionType.OFFER);
+    this.dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, answerSocketId);
+    // createOffer 전에 dataChannel 생성 해둬야함!
+    this.dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);
+  
+    const offer = await rtcPeerConnection.createOffer();
+    rtcPeerConnection.setLocalDescription(offer);
+    
+    const data:OfferData = {
+      answerSocketId,
+      offer,
+      offerSocketId: this.socket.id,
+    }
+    this.socket.emit('offer', data);
   }
 
   createConnection(type: RtcConnectionType, destSocketId: string){

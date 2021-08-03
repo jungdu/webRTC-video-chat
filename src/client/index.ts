@@ -17,7 +17,7 @@ const socket = socketManager.init("http://127.0.0.1:8080/", {
   }
 })
 
-const rtcConnectionManager = new RtcConnectionManager(socket);
+const rtcConnectionManager = new RtcConnectionManager(socket, dataChannelManager);
 rtcConnectionManager.addSocketHandler(dataChannelManager);
 rtcConnectionManager.setHandlers({
   onAddConnection: () => {
@@ -42,7 +42,7 @@ dataChannelManager.setHandlers({
 connectBtn.addEventListener('click', () => {
   const answerSocketId = answerSocketIdInput.value;
   console.log("trying connect " + answerSocketId);
-  connectRTCPeer(socketManager.socket, answerSocketId, rtcConnectionManager, dataChannelManager);
+  rtcConnectionManager.connectPeer(answerSocketId);
 })
 
 sendBtn.addEventListener('click', () => {
