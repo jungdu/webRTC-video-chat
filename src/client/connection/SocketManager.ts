@@ -1,5 +1,4 @@
 import {io, Socket} from "socket.io-client";
-import { addRtcSocketHandler } from "./rtcSocketHandler";
 
 interface SocketHandlers {
   onUpdateSocketId?: (id: string | null) => void;

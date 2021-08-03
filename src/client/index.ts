@@ -2,7 +2,6 @@ import { connectRTCPeer } from "./connection/rtcConnection";
 import RtcConnectionManager from "./connection/RtcConnectionManager";
 import SocketManager from "./connection/SocketManager";
 import DataChannelManager from "./connection/DataChannelManager";
-import { addRtcSocketHandler } from "./connection/rtcSocketHandler";
 
 const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
 const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
@@ -18,9 +17,8 @@ const socket = socketManager.init("http://127.0.0.1:8080/", {
     socketIdSpan.innerHTML = socketId || "disconnected";
   }
 })
-addRtcSocketHandler(socket, rtcConnectionManager, dataChannelManager);
 
-
+rtcConnectionManager.addSocketHandler(socket, dataChannelManager);
 rtcConnectionManager.setHandlers({
   onAddConnection: () => {
     updateConnectionList(rtcConnectionManager)
