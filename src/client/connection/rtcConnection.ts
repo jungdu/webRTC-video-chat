@@ -8,7 +8,7 @@ export async function connectRTCPeer(socket: Socket, answerSocketId: string, rtc
     throw new Error("connectRTCPeer:::No socket id");
   }
   const rtcPeerConnection = rtcConnectionManager.createConnection(RtcConnectionType.OFFER, answerSocketId);
-  rtcConnectionManager.addCandidateHandler(rtcPeerConnection, socket, answerSocketId, RtcConnectionType.OFFER);
+  rtcConnectionManager.addCandidateHandler(rtcPeerConnection, answerSocketId, RtcConnectionType.OFFER);
   dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, answerSocketId);
   // createOffer 전에 dataChannel 생성 해둬야함!
   dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);

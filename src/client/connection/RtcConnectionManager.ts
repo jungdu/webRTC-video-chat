@@ -23,12 +23,16 @@ export default class RtcConnectionManager{
     [RtcConnectionType.OFFER]: new Map(), 
   }
   handlers: RtcConnectionHandlers = {};
+  socket: Socket;
 
-  constructor(){
+  constructor(socket:Socket){
+    // 디버깅 용
     // @ts-expect-error
     window.offerConnections = this.connections[RtcConnectionType.OFFER];
     // @ts-expect-error
     window.answerConnections = this.connections[RtcConnectionType.ANSWER];
+    
+    this.socket = socket;
   }
 
   addConnection(type: RtcConnectionType, socketId:string, connection: RTCPeerConnection){
@@ -36,7 +40,7 @@ export default class RtcConnectionManager{
     if(this.handlers.onAddConnection) this.handlers.onAddConnection(socketId);
   }
 
-  addCandidateHandler(connection: RTCPeerConnection, socket: Socket, destSocketId: string, type: RtcConnectionType){
+  addCandidateHandler(connection: RTCPeerConnection, destSocketId: string, type: RtcConnectionType){
     console.log("addCandidateHandler ");
     connection.onicecandidate = event => {
       console.log("icecandidate:::event:", event);
@@ -45,17 +49,17 @@ export default class RtcConnectionManager{
         const data:CandidateData = {
          candidate,
          destSocketId,
-         fromSocketId: socket.id,
+         fromSocketId: this.socket.id,
          type, 
         }
-        socket.emit('candidate', data)     
+        this.socket.emit('candidate', data)
       }
     }
   }
 
 
-  addSocketHandler(socket:Socket, dataChannelManager:DataChannelManager){
-    socket.on('offer', async ({
+  addSocketHandler(dataChannelManager:DataChannelManager){
+    this.socket.on('offer', async ({
       offer,
       offerSocketId,
     }:OfferData) => {
@@ -63,20 +67,20 @@ export default class RtcConnectionManager{
       dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, offerSocketId);
   
       console.log("on offer ", rtcPeerConnection);
-      this.addCandidateHandler(rtcPeerConnection, socket, offerSocketId, RtcConnectionType.ANSWER)
+      this.addCandidateHandler(rtcPeerConnection, offerSocketId, RtcConnectionType.ANSWER)
       rtcPeerConnection.setRemoteDescription(offer);
       const answer = await rtcPeerConnection.createAnswer();
       rtcPeerConnection.setLocalDescription(answer);
       
       const data: AnswerData = {
-        answerSocketId: socket.id,
+        answerSocketId: this.socket.id,
         answer,
         offerSocketId,
       }
-      socket.emit('answer', data);
+      this.socket.emit('answer', data);
     });
   
-    socket.on('answer', ({
+    this.socket.on('answer', ({
       answerSocketId,
       answer,
     }: AnswerData) => {
@@ -89,7 +93,7 @@ export default class RtcConnectionManager{
       }
     });
   
-    socket.on('candidate', ({
+    this.socket.on('candidate', ({
       candidate,
       fromSocketId,
       type,

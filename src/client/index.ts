@@ -10,7 +10,6 @@ const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
 
 const socketManager = new SocketManager();
 const dataChannelManager = new DataChannelManager();
-const rtcConnectionManager = new RtcConnectionManager();
 
 const socket = socketManager.init("http://127.0.0.1:8080/", {
   onUpdateSocketId: (socketId) => {
@@ -18,7 +17,8 @@ const socket = socketManager.init("http://127.0.0.1:8080/", {
   }
 })
 
-rtcConnectionManager.addSocketHandler(socket, dataChannelManager);
+const rtcConnectionManager = new RtcConnectionManager(socket);
+rtcConnectionManager.addSocketHandler(dataChannelManager);
 rtcConnectionManager.setHandlers({
   onAddConnection: () => {
     updateConnectionList(rtcConnectionManager)
