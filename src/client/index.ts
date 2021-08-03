@@ -1,4 +1,3 @@
-import { connectRTCPeer } from "./connection/rtcConnection";
 import RtcConnectionManager from "./connection/RtcConnectionManager";
 import SocketManager from "./connection/SocketManager";
 import DataChannelManager from "./connection/DataChannelManager";
