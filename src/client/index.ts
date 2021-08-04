@@ -3,71 +3,78 @@ import SocketManager from "./connection/SocketManager";
 import DataChannelManager from "./connection/DataChannelManager";
 import MediaStreamManager from "./connection/MediaStreamManager";
 
-const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
-const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
-const answerSocketIdInput = document.getElementById("answerSocketId") as HTMLInputElement;
-const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
+main();
 
-
-const socketManager = new SocketManager();
-const dataChannelManager = new DataChannelManager();
-
-const socket = socketManager.init("http://127.0.0.1:8080/", {
-  onUpdateSocketId: (socketId) => {
-    socketIdSpan.innerHTML = socketId || "disconnected";
+function main(){
+  const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
+  const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
+  const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
+  
+  const socketManager = new SocketManager();
+  const dataChannelManager = new DataChannelManager();
+  
+  if(!process.env.SOCKET_URL){
+    throw new Error("SOCKET_URL isn't declared");
   }
-})
 
-const mediaStreamManager = new MediaStreamManager({
-  handlers: {
-    onGetCameraStream: handleGetCameraStream,
-    onTrack: handleTrack,
-  }
-})
-
-const rtcConnectionManager = new RtcConnectionManager(socket, {
-    dataChannelManager,
-    mediaStreamManager,
-  }
-);
-
-rtcConnectionManager.setHandlers({
-  onAddConnection: () => {
-    updateConnectionList(rtcConnectionManager)
-  },
-  onCloseConnection: () => {
-    updateConnectionList(rtcConnectionManager)
-  }
-})
-
-dataChannelManager.setHandlers({
-  onMessage: (event, socketId) => {
-    if(event.data){
-      const messageUl = document.getElementById("messageUl") as HTMLUListElement;
-      const li = document.createElement('li');
-      li.innerHTML = `<b>${socketId}</b> ${event.data}`;
-      messageUl.appendChild(li);
+  const socket = socketManager.init(process.env.SOCKET_URL, {
+    onUpdateSocketId: (socketId) => {
+      socketIdSpan.innerHTML = socketId || "disconnected";
     }
-  }
-})
-
-connectBtn.addEventListener('click', () => {
-  const answerSocketId = answerSocketIdInput.value;
-  console.log("trying connect " + answerSocketId);
-  rtcConnectionManager.connectPeer(answerSocketId);
-})
-
-sendBtn.addEventListener('click', () => {
-    const messageInput = document.getElementById("messageInput") as HTMLInputElement;
-    if(messageInput.value){
-    if(dataChannelManager.dataChannels.length < 1){
-      alert("연결된 dataChannel이 없습니다.")
-    }else{
-      dataChannelManager.broadcast(messageInput.value);
-      messageInput.value = "";
+  })
+  
+  const mediaStreamManager = new MediaStreamManager({
+    handlers: {
+      onGetCameraStream: handleGetCameraStream,
+      onTrack: handleTrack,
     }
-  }
-})
+  })
+  
+  const rtcConnectionManager = new RtcConnectionManager(socket, {
+      dataChannelManager,
+      mediaStreamManager,
+    }
+  );
+  
+  rtcConnectionManager.setHandlers({
+    onAddConnection: () => {
+      updateConnectionList(rtcConnectionManager)
+    },
+    onCloseConnection: () => {
+      updateConnectionList(rtcConnectionManager)
+    }
+  })
+  
+  dataChannelManager.setHandlers({
+    onMessage: (event, socketId) => {
+      if(event.data){
+        const messageUl = document.getElementById("messageUl") as HTMLUListElement;
+        const li = document.createElement('li');
+        li.innerHTML = `<b>${socketId}</b> ${event.data}`;
+        messageUl.appendChild(li);
+      }
+    }
+  })
+  
+  connectBtn.addEventListener('click', () => {
+    const answerSocketIdInput = document.getElementById("answerSocketId") as HTMLInputElement;
+    const answerSocketId = answerSocketIdInput.value;
+    console.log("trying connect " + answerSocketId);
+    rtcConnectionManager.connectPeer(answerSocketId);
+  })
+  
+  sendBtn.addEventListener('click', () => {
+      const messageInput = document.getElementById("messageInput") as HTMLInputElement;
+      if(messageInput.value){
+      if(dataChannelManager.dataChannels.length < 1){
+        alert("연결된 dataChannel이 없습니다.")
+      }else{
+        dataChannelManager.broadcast(messageInput.value);
+        messageInput.value = "";
+      }
+    }
+  })
+}
 
 function updateConnectionList(rtcConnectionManager:RtcConnectionManager){
   const connectionUl = document.getElementById("connectionUl") as HTMLUListElement;
