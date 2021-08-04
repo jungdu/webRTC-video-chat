@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import { AnswerData, OfferData, CandidateData, RtcConnectionType } from "./types";
 import DataChannelManager from "./DataChannelManager";
+import MediaStreamManager from "./MediaStreamManager";
 interface RtcConnectionHandlers {
   onAddConnection?: (socketId: string) => void;
   onCloseConnection?: (socketId: string) => void;
@@ -25,8 +26,12 @@ export default class RtcConnectionManager{
   handlers: RtcConnectionHandlers = {};
   socket: Socket;
   dataChannelManager: DataChannelManager;
+  mediaStreamManager: MediaStreamManager;
 
-  constructor(socket:Socket, dataChannelManager: DataChannelManager){
+  constructor(socket:Socket, managers: {
+    dataChannelManager: DataChannelManager, 
+    mediaStreamManager: MediaStreamManager
+  }){
     // 디버깅 용
     // @ts-expect-error
     window.offerConnections = this.connections[RtcConnectionType.OFFER];
@@ -34,7 +39,10 @@ export default class RtcConnectionManager{
     window.answerConnections = this.connections[RtcConnectionType.ANSWER];
     
     this.socket = socket;
-    this.dataChannelManager = dataChannelManager;
+    this.dataChannelManager = managers.dataChannelManager;
+    this.mediaStreamManager = managers.mediaStreamManager;
+    
+    this.addSocketHandler();
   }
 
   addConnection(type: RtcConnectionType, socketId:string, connection: RTCPeerConnection){
@@ -59,14 +67,14 @@ export default class RtcConnectionManager{
     }
   }
 
-
-  addSocketHandler(dataChannelManager:DataChannelManager){
+  addSocketHandler(){
     this.socket.on('offer', async ({
       offer,
       offerSocketId,
     }:OfferData) => {
       const rtcPeerConnection = this.createConnection(RtcConnectionType.ANSWER, offerSocketId);
-      dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, offerSocketId);
+      this.dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, offerSocketId);
+      this.mediaStreamManager.addRtcMediaStreamHandler(rtcPeerConnection);
   
       console.log("on offer ", rtcPeerConnection);
       this.addCandidateHandler(rtcPeerConnection, offerSocketId, RtcConnectionType.ANSWER)
@@ -119,6 +127,7 @@ export default class RtcConnectionManager{
     const rtcPeerConnection = this.createConnection(RtcConnectionType.OFFER, answerSocketId);
     this.addCandidateHandler(rtcPeerConnection, answerSocketId, RtcConnectionType.OFFER);
     this.dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, answerSocketId);
+    this.mediaStreamManager.addRtcMediaStreamHandler(rtcPeerConnection);
     // createOffer 전에 dataChannel 생성 해둬야함!
     this.dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);
   

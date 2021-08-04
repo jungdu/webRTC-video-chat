@@ -1,11 +1,13 @@
 import RtcConnectionManager from "./connection/RtcConnectionManager";
 import SocketManager from "./connection/SocketManager";
 import DataChannelManager from "./connection/DataChannelManager";
+import MediaStreamManager from "./connection/MediaStreamManager";
 
 const socketIdSpan = document.getElementById("socketIdSpan") as HTMLSpanElement
 const connectBtn = document.getElementById("connectBtn") as HTMLButtonElement;
 const answerSocketIdInput = document.getElementById("answerSocketId") as HTMLInputElement;
 const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
+
 
 const socketManager = new SocketManager();
 const dataChannelManager = new DataChannelManager();
@@ -16,8 +18,19 @@ const socket = socketManager.init("http://127.0.0.1:8080/", {
   }
 })
 
-const rtcConnectionManager = new RtcConnectionManager(socket, dataChannelManager);
-rtcConnectionManager.addSocketHandler(dataChannelManager);
+const mediaStreamManager = new MediaStreamManager({
+  handlers: {
+    onGetCameraStream: handleGetCameraStream,
+    onTrack: handleTrack,
+  }
+})
+
+const rtcConnectionManager = new RtcConnectionManager(socket, {
+    dataChannelManager,
+    mediaStreamManager,
+  }
+);
+
 rtcConnectionManager.setHandlers({
   onAddConnection: () => {
     updateConnectionList(rtcConnectionManager)
@@ -65,4 +78,25 @@ function updateConnectionList(rtcConnectionManager:RtcConnectionManager){
     li.innerHTML = id;
     connectionUl.appendChild(li);
   })
+}
+
+function handleGetCameraStream(stream:MediaStream){
+  const myCamera = document.getElementById("myCamera") as HTMLVideoElement;
+  myCamera.srcObject = stream;
+  myCamera.onloadedmetadata = function(){
+    myCamera.play();
+  }
+}
+
+function handleTrack(rtcTrackEvent: RTCTrackEvent){
+  console.log("onTrack rtcTrackEvent :", rtcTrackEvent)
+  const videoUl = document.getElementById("videoUl") as HTMLUListElement;
+  const newVideo = document.createElement("video") as HTMLVideoElement;
+  
+  newVideo.srcObject = rtcTrackEvent.streams[0];
+  newVideo.onloadedmetadata = function(e){
+    newVideo.play();
+  }
+
+  videoUl.append(newVideo);
 }
