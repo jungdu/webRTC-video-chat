@@ -10,6 +10,12 @@ export function startExpressServer(port: number|string){
     httpServer: http.Server
   }>((resolve) => {
     const app = express();
+
+    // health check
+    app.get('/ping', function(req, res) {
+      res.status(200).send('pong')
+    });
+    
     const server = app.listen(port, () => {
       console.log("Listening on ", port);
       resolve({
