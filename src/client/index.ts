@@ -48,10 +48,7 @@ function main(){
   dataChannelManager.setHandlers({
     onMessage: (event, socketId) => {
       if(event.data){
-        const messageUl = document.getElementById("messageUl") as HTMLUListElement;
-        const li = document.createElement('li');
-        li.innerHTML = `<b>${socketId}</b> ${event.data}`;
-        messageUl.appendChild(li);
+        addMessage(socketId, event.data);
       }
     }
   })
@@ -70,10 +67,18 @@ function main(){
         alert("연결된 dataChannel이 없습니다.")
       }else{
         dataChannelManager.broadcast(messageInput.value);
+        addMessage("my message:", messageInput.value);
         messageInput.value = "";
       }
     }
   })
+}
+
+function addMessage(from: string, message: string){
+  const messageUl = document.getElementById("messageUl") as HTMLUListElement;
+  const li = document.createElement('li');
+  li.innerHTML = `<b>${from}: </b> ${message}`;
+  messageUl.appendChild(li);
 }
 
 function updateConnectionList(rtcConnectionManager:RtcConnectionManager){
