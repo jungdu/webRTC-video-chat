@@ -10,6 +10,7 @@
 
 ## Docker
 ### build
+docker image를 빌드하기 이전에 `yarn build` 명령어를 통해서 webpack build가 선행되어야 함.
 ```
 docker build . -t <NAME AND TAG>
 ```
@@ -20,6 +21,11 @@ docker push <NAME AND TAG>
 ```
 
 ### docker image 실행
+```
+docker run -p 8080:8080 -d <NAME AND TAG>
+```
+
+### 실행 중인 docker image의 bash로 접속
 ```
 docker run -p 8080:8080 -d <NAME AND TAG>
 ```
