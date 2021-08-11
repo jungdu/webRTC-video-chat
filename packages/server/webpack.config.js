@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   target: "node",
   mode: "none",
-  entry: './src/server/index.ts',
+  entry: './src/index.ts',
   devtool: 'inline-source-map',
   module: {
     rules: [
@@ -19,6 +19,6 @@ module.exports = {
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, "build"),
+    path: path.resolve(__dirname, "../../build"),
   },
 };

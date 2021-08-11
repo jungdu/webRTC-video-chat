@@ -4,12 +4,13 @@ const dotenv = require("dotenv");
 
 module.exports = (env, argv) => {
   dotenv.config({
-    path: argv.mode === "production" ? "./env/production.env" : "./env/dev.env"
+    path: argv.mode === "production" ? "../../env/production.env" : "../../env/dev.env"
   });
+  console.log("process.env.SOCKET_URL :", process.env.SOCKET_URL)
 
   return {
     mode: "none",
-    entry: './src/client/index.ts',
+    entry: './src/index.ts',
     devtool: 'inline-source-map',
     module: {
       rules: [
@@ -25,7 +26,7 @@ module.exports = (env, argv) => {
     },
     output: {
       filename: 'bundle.js',
-      path: path.resolve(__dirname, "public"),
+      path: path.resolve(__dirname, "../../public"),
     },
     plugins: [
       new webpack.DefinePlugin({

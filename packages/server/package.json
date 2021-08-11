@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon --watch src --delay 1 --exec 'ts-node' src/index.ts",
+    "build": "webpack --config ./webpack.config.js --mode=production"
+  },
+  "devDependency": {
+    "@types/jest": "^26.0.15",
+    "@types/jsdom": "^16.2.5",
+    "jest": "^26.6.3",
+    "jsdom": "^16.4.0",
+    "nodemon": "^2.0.7",
+    "ts-jest": "^26.4.4",
+    "ts-loader": "^8.0.17",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.2",
+    "webpack": "^5.21.2",
+    "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "concurrently": "^6.0.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "socket.io": "^4.0.1"
+  }
+}

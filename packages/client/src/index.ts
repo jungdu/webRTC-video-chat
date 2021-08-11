@@ -17,6 +17,7 @@ function main(){
     throw new Error("SOCKET_URL isn't declared");
   }
 
+  console.log("web socket connect to : ", process.env.SOCKET_URL);
   const socket = socketManager.init(process.env.SOCKET_URL, {
     onUpdateSocketId: (socketId) => {
       socketIdSpan.innerHTML = socketId || "disconnected";
