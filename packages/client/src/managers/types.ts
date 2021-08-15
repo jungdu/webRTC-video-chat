@@ -1,4 +1,4 @@
-export const enum RtcConnectionType {
+export const enum RTCConnectionType {
   OFFER = "OFFER",
   ANSWER = "ANSWER"
 }
@@ -13,7 +13,7 @@ export interface CandidateData {
   candidate: RTCIceCandidate;
   destSocketId: string;
   fromSocketId: string;
-  type: RtcConnectionType;
+  type: RTCConnectionType;
 }
 
 export interface OfferData {

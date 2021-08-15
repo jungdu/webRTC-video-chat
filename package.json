@@ -9,10 +9,11 @@
   "license": "MIT",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "concurrently \"yarn workspace client dev --watch\" \"yarn workspace server dev\"",
+    "dev": "concurrently \"yarn workspace client start\" \"yarn workspace server dev\"",
     "build": "yarn workspace client build && yarn workspace server build"
   },
   "devDependencies": {
-    "concurrently": "^6.0.1"
+    "concurrently": "^6.0.1",
+    "nodemon": "^2.0.12"
   }
 }

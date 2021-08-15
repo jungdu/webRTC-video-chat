@@ -31,6 +31,11 @@ export function useStaticServer(expressServer:Express){
 }
 
 export function createSocketServer(httpServer: http.Server){
-  const ioServer = new socketIo.Server(httpServer);
+  const options = process.env.NODE_ENV === "development" ? {cors: {
+    origin: "http://localhost:3000"
+  }} : {};
+
+  console.log("options :", options)
+  const ioServer = new socketIo.Server(httpServer, options);
   return ioServer;
 }
