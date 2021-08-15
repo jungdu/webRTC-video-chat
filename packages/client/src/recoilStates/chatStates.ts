@@ -6,14 +6,17 @@ export const connectedSocketIdState = atom<string | null>({
 });
 
 export const chatMessagesState = atom<{
-  from: string;
+  socketId: string;
   message: string;
 }[]>({
   key: "messagesState",
   default: []
 })
 
-export const chatMediaStreamsState = atom<MediaStream[][]>({
+export const chatMediaStreamsState = atom<{
+  socketId: string
+  mediaStream: MediaStream[]
+}[]>({
   key: "chatMediaStreamsState",
   default: [],
 })

@@ -6,8 +6,8 @@ const ChatMessages: React.FC = () => {
   const chatMessages = useRecoilValue(chatMessagesState);
 
   return <ul>
-  {chatMessages.map(({from, message}) => <li>
-    {from}: {message}
+  {chatMessages.map(({socketId, message}) => <li>
+    {socketId}: {message}
   </li>)}
 </ul>;
 };

@@ -80,7 +80,7 @@ export default class RTCConnectionManager{
       const {offer, offerSocketId} = message;
       const rtcPeerConnection = this.createConnection(RTCConnectionType.ANSWER, offerSocketId)
       this.dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, offerSocketId);
-      this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection);
+      this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection, offerSocketId);
 
       this.addIceCandidateHandler(rtcPeerConnection, offerSocketId, RTCConnectionType.ANSWER, socket);
       rtcPeerConnection.setRemoteDescription(offer);
@@ -122,7 +122,7 @@ export default class RTCConnectionManager{
 
     const rtcPeerConnection = this.createConnection(RTCConnectionType.OFFER, answerSocketId);
     this.addIceCandidateHandler(rtcPeerConnection, answerSocketId, RTCConnectionType.OFFER, socket);
-    this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection);
+    this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection, answerSocketId);
     this.dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);
   
     const offer = await rtcPeerConnection.createOffer();
