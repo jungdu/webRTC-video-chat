@@ -1,6 +1,6 @@
 import { socketManager } from "managers";
 import { useEffect } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { connectedSocketIdState } from "recoilStates/chatStates";
 
 export default function useSocketConnection(){
@@ -17,7 +17,7 @@ export default function useSocketConnection(){
     })
 
     socket.on('disconnect', () => {
-      setConnectedSocketId(null);
+      setConnectedSocketId(null);  
     })
   }, []);
 }

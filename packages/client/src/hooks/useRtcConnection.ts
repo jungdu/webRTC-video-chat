@@ -11,10 +11,6 @@ export default function useRtcConnection(){
   useEffect(() => {
     if(connectedSocketId){
       const currentSocket = socketManager.getCurrentSocket();
-      if(!currentSocket){
-        throw new Error("no socket to add socket handlers")
-      }
-
       rtcConnectionManager.addSocketHandler(currentSocket);
       dataChannelManager.setHandlers({
         onMessage: function(event: MessageEvent<any>, socketId: string){
@@ -26,7 +22,6 @@ export default function useRtcConnection(){
 
       mediaStreamManager.setHandlers({
         onNewTrack: function(rtcTrackEvent, socketId){
-          console.log("onNewTrack");
           setChatMediaStreams(function(mediaStreams){
             const newStreams = [...rtcTrackEvent.streams];
             return [...mediaStreams, {

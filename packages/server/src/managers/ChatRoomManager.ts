@@ -33,7 +33,7 @@ export default class ChatRoomManager {
     return newRoom;
   }
 
-  exitRoom(roomId: string, socketId: string){
+  leaveRoom(roomId: string, socketId: string){
     const room = this.getRoom(roomId);
     if(!this.isUserInRoom(room, socketId)){
       throw new Error("User isn't on userSocketIds")
@@ -43,9 +43,10 @@ export default class ChatRoomManager {
     
     if(room.userSocketIds.length <= 0){
       this.deleteRoom(room);
+      return null;
     }
 
-    return this.rooms;
+    return room;
   }
 
   getRooms(){

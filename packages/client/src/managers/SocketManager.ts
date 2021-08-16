@@ -4,12 +4,15 @@ export default class SocketManager {
   currentSocket:Socket|null = null;
 
   getCurrentSocket(){
-     return this.currentSocket;  
+    if(!this.currentSocket){
+      throw new Error("No currentSocket to get")
+    }
+    return this.currentSocket;  
   }
 
   connect(){
       if(this.currentSocket){
-        throw new Error("currentSocket is already exist");
+        throw new Error("CurrentSocket is already exist");
       }
 
       const socketUrl = process.env.REACT_APP_SOCKET_URL;

@@ -1,7 +1,5 @@
-import {Socket} from "socket.io"
+import {Server, Socket} from "socket.io"
 import {Socket as ClientSocket} from "socket.io-client"
-
-
 
 export enum RTCConnectionType {
   OFFER = "OFFER",
@@ -34,7 +32,7 @@ interface OfferData {
   offerSocketId: string;
 }
 
-type SocketHandler<T extends any[]> = (...args: T) => void;
+type SocketHandler<T extends any[] = []> = (...args: T) => void;
 
 type ClientRTCConnectionMessage = {
   answer: SocketHandler<[msg:AnswerData]>;
@@ -54,11 +52,13 @@ type ClientChatRoomMessage = {
   joinLobby: SocketHandler<[cb: (room: Room[]) => void]>;
   getRooms: SocketHandler<[cb: (room: Room[]) => void]>;
   getRoomInfo: SocketHandler<[msg: {roomId: string}]>
-  exitRoom: SocketHandler<[msg: {roomId: string}]>;
+  leaveRoom: SocketHandler<[msg: {roomId: string}]>;
+  leaveLobby: SocketHandler;
 }
 
 type ServerChatRoomMessage = {
-  newRoom: SocketHandler<[room:Room]>;
+  createdRoom: SocketHandler<[room:Room]>;
+  deletedRoom: SocketHandler<[roomId: string]>;
 }
 
 
@@ -69,3 +69,5 @@ type ServerToClientMessage = ServerChatRoomMessage & ServerRTCConnectionMessage;
 export type TypedClientSocket = ClientSocket<ServerToClientMessage, ClientToServerMessage>;
 
 export type TypedServerSocket = Socket<ClientToServerMessage, ServerToClientMessage>;
+
+export type TypedServerSocketServer = Server<ClientToServerMessage, ServerToClientMessage>;

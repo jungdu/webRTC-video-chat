@@ -1,6 +1,5 @@
 import { Socket, Server} from "socket.io";
-import Client, {Socket as ClientSocket} from "socket.io-client";
-import { TypedClientSocket } from "../../../common/dist";
+import { TypedClientSocket } from "@videochat/common";
 import ChatRoomManager, { Room } from "../managers/ChatRoomManager";
 import { createSocketClient, createTestSocketServer } from "../utils/testUtils";
 import { addChatRoomHandlers } from "./chatRoomHandlers";
@@ -32,7 +31,7 @@ describe("Chat Room Handlers", () => {
 
   test("Notify creating room to lobby", (done) => {
     clientSocket.emit("joinLobby", () => {
-      clientSocket.on('newRoom', (room:Room) => {
+      clientSocket.on('createdRoom', (room:Room) => {
         expect(room.roomName).toBe("First Room");
         expect(room.createdBy).toBe(clientSocket.id);
         expect(room.userSocketIds).toEqual([clientSocket.id])
@@ -80,7 +79,7 @@ describe("Chat Room Handlers", () => {
         roomName: "First Room"
       }, (newRoom:Room) =>{
         client2.emit('joinRoom', {roomId: newRoom.roomId}, (joinedRoom: Room) => {
-          client2.emit('exitRoom', {roomId: newRoom.roomId});
+          client2.emit('leaveRoom', {roomId: newRoom.roomId});
           clientSocket.emit("getRooms", (rooms: Room[]) => {
             expect(rooms.length).toBe(1);
             expect(rooms[0].userSocketIds.length).toBe(1);
@@ -95,7 +94,7 @@ describe("Chat Room Handlers", () => {
     clientSocket.emit("createRoom", {
       roomName: "First Room"
     }, (newRoom: Room) => {
-      clientSocket.emit("exitRoom", {roomId: newRoom.roomId});
+      clientSocket.emit("leaveRoom", {roomId: newRoom.roomId});
       clientSocket.emit("getRooms", (rooms: Room[]) => {
         expect(rooms.length).toBe(0);
         done();
