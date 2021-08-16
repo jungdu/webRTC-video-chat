@@ -1,6 +1,7 @@
 import { createServer } from "http";
-import { Server, Socket } from "socket.io";
-import Client, {Socket as ClientSocket} from "socket.io-client";
+import { Server } from "socket.io";
+import Client from "socket.io-client";
+import { TypedClientSocket } from "../../../common/dist";
 
 const testServerPort = 8080;
 const testServerUrl = `http://localhost:${testServerPort}`;
@@ -18,7 +19,7 @@ export function createTestSocketServer(){
 }
 
 export function createSocketClient(){
-  return new Promise<ClientSocket>(resolve => {
+  return new Promise<TypedClientSocket>(resolve => {
     // @ts-expect-error
     const clientSocket = new Client(testServerUrl);
     clientSocket.on("connect", () => {

@@ -1,17 +1,12 @@
 import { Socket, Server} from "socket.io";
 import Client, {Socket as ClientSocket} from "socket.io-client";
-import { cli } from "webpack";
+import { TypedClientSocket } from "../../../common/dist";
 import ChatRoomManager, { Room } from "../managers/ChatRoomManager";
 import { createSocketClient, createTestSocketServer } from "../utils/testUtils";
 import { addChatRoomHandlers } from "./chatRoomHandlers";
 
-type joinLobbyParams = Room[];
-
-const testServerPort = 8080;
-const testServerUrl = `http://localhost:${testServerPort}`;
-
 describe("Chat Room Handlers", () => {
-  let socketServer:Server, clientSocket:ClientSocket, chatRoomManager:ChatRoomManager;
+  let socketServer:Server, clientSocket:TypedClientSocket, chatRoomManager:ChatRoomManager;
 
   beforeEach(async () => {
     socketServer = await createTestSocketServer();

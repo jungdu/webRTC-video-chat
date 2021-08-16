@@ -1,7 +1,6 @@
-import { Socket } from "socket.io-client";
 import DataChannelManager from "./DataChannelManager";
 import MediaStreamManager from "./MediaStreamManager";
-import { AnswerData, CandidateData, OfferData, RTCConnectionType } from "./types";
+import { TypedClientSocket, RTCConnectionType } from "@videochat/common"
 
 const ICE_SERVERS = {
   iceServers: [
@@ -52,17 +51,16 @@ export default class RTCConnectionManager{
     this.mediaStreamManager = managers.mediaStreamManager;
   }
 
-  private addIceCandidateHandler(connection: RTCPeerConnection, destSocketId: string, type: RTCConnectionType, socket:Socket){
+  private addIceCandidateHandler(connection: RTCPeerConnection, destSocketId: string, type: RTCConnectionType, socket:TypedClientSocket){
     connection.onicecandidate = event => {
       const {candidate} = event;
       if(candidate){
-        const data:CandidateData = {
-         candidate,
-         destSocketId,
-         fromSocketId: socket.id,
-         type, 
-        }
-        socket.emit('candidate', data)
+        socket.emit('candidate', {
+          candidate,
+          destSocketId,
+          fromSocketId: socket.id,
+          type, 
+         })
       }
     }
   }
@@ -74,9 +72,9 @@ export default class RTCConnectionManager{
   }
 
   addSocketHandler(
-    socket: Socket,
+    socket: TypedClientSocket,
   ){
-    socket.on('offer', async (message: OfferData) => {
+    socket.on('offer', async (message) => {
       const {offer, offerSocketId} = message;
       const rtcPeerConnection = this.createConnection(RTCConnectionType.ANSWER, offerSocketId)
       this.dataChannelManager.addRtcDataChannelHandler(rtcPeerConnection, offerSocketId);
@@ -86,16 +84,14 @@ export default class RTCConnectionManager{
       rtcPeerConnection.setRemoteDescription(offer);
       const answer = await rtcPeerConnection.createAnswer();
       rtcPeerConnection.setLocalDescription(answer);
-      const sendMessage: AnswerData = {
+      socket.emit('answer', {
         answerSocketId: socket.id,
         answer,
         offerSocketId,
-      }
-
-      socket.emit('answer', sendMessage);
+      });
     });
 
-    socket.on('answer', (message: AnswerData) => {
+    socket.on('answer', (message) => {
       const {answer, answerSocketId} = message;
       const rtcPeerConnection = this.connectionStore.getConnection(RTCConnectionType.OFFER, answerSocketId);
       if(!rtcPeerConnection){
@@ -104,7 +100,7 @@ export default class RTCConnectionManager{
       rtcPeerConnection.setRemoteDescription(answer);
     });
 
-    socket.on('candidate', (message:CandidateData) => {
+    socket.on('candidate', (message) => {
       const { candidate, fromSocketId, type } = message;
       const connectionType = type === RTCConnectionType.OFFER ? RTCConnectionType.ANSWER : RTCConnectionType.OFFER;
       const rtcPeerConnection = this.connectionStore.getConnection(connectionType, fromSocketId);
@@ -115,7 +111,7 @@ export default class RTCConnectionManager{
     });
   }
 
-  async connectPeer(socket: Socket, answerSocketId: string){
+  async connectPeer(socket: TypedClientSocket, answerSocketId: string){
     if(!socket.id){
       throw new Error("connectRTCPeer:::No socket id");
     }
@@ -128,11 +124,10 @@ export default class RTCConnectionManager{
     const offer = await rtcPeerConnection.createOffer();
     rtcPeerConnection.setLocalDescription(offer);
     
-    const data:OfferData = {
+    socket.emit('offer', {
       answerSocketId,
       offer,
       offerSocketId: socket.id,
-    }
-    socket.emit('offer', data);
+    });
   }
 }

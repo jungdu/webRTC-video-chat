@@ -1,5 +1,6 @@
 import {Socket, Server as SocketIoServer} from "socket.io"
 import ChatRoomManager, { Room } from "../managers/ChatRoomManager"
+import {TypedServerSocket} from "@videochat/common"
 
 interface CreateRoomMsg {
   roomName: string;
@@ -17,8 +18,8 @@ interface ExitRoomMsg{
   roomId: string;
 }
 
-export function addChatRoomHandlers(socket: Socket, socketServer: SocketIoServer, chatRoomManager: ChatRoomManager){
-  socket.on("createRoom", (msg: CreateRoomMsg, cb?: (room:Room) => {}) => {
+export function addChatRoomHandlers(socket: TypedServerSocket, socketServer: SocketIoServer, chatRoomManager: ChatRoomManager){
+  socket.on("createRoom", (msg, cb) => {
     const newRoom = chatRoomManager.createRooms({
       roomName: msg.roomName,
       createdBy: socket.id,
@@ -31,17 +32,17 @@ export function addChatRoomHandlers(socket: Socket, socketServer: SocketIoServer
     }
   });
 
-  socket.on("joinRoom", (msg: JoinRoomMsg, cb?: (room: Room) => void) => {
+  socket.on("joinRoom", (msg, cb) => {
     const room = chatRoomManager.joinRoom(msg.roomId, socket.id);
     if(cb){
       cb(room);
     }
   })
 
-  socket.on("joinLobby", (callback: (rooms:Room[]) => void) =>{
+  socket.on("joinLobby", (cb) =>{
     socket.join("lobby");
     const rooms = chatRoomManager.getRooms();
-    callback(rooms);
+    cb(rooms);
   })
 
   socket.on("getRooms", (cb: (room: Room[]) => void) => {
@@ -49,11 +50,6 @@ export function addChatRoomHandlers(socket: Socket, socketServer: SocketIoServer
     if(cb){
       cb(rooms);
     }
-  })
-
-  socket.on("getRoomInfo", (msg: GetRoomMsg) => {
-    const room = chatRoomManager.getRoom(msg.roomId);
-    socket.emit("roomInfo", room);
   })
 
   socket.on("exitRoom", (msg: ExitRoomMsg) => {

@@ -1,6 +1,5 @@
 {
   "private": true,
-  "name": "web-rtc-video-chat",
   "workspaces": [
     "packages/*"
   ],
@@ -9,8 +8,9 @@
   "license": "MIT",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "concurrently \"yarn workspace client start\" \"yarn workspace server dev\"",
-    "build": "yarn workspace client build && yarn workspace server build"
+    "dev": "concurrently \"yarn workspace client start\" \"yarn workspace server dev\" \"yarn workspace @videochat/common dev\"",
+    "dev:server": "concurrently \"yarn workspace @videochat/common dev\" \"yarn workspace server dev\"",
+    "build": "yarn workspace @videochat/common build && yarn workspace client build && yarn workspace server build"
   },
   "devDependencies": {
     "concurrently": "^6.0.1",
