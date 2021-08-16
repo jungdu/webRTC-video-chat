@@ -1,8 +1,8 @@
 import {Socket} from "socket.io"
 
-export function addSocketHandler(socket: Socket){
+export function addRTCConnectionHandlers(socket: Socket){
   console.log("new socket connected");
-
+  
   socket.on('offer', arg => {
     console.log("offer:::arg :", arg)
     socket.to(arg.answerSocketId).emit('offer', arg);

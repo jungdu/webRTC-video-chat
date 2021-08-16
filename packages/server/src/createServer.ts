@@ -1,4 +1,4 @@
-import socketIo, {Socket} from "socket.io"
+import socketIo from "socket.io"
 import express, {Express} from "express";
 import http from "http";
 

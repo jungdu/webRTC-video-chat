@@ -1,5 +1,5 @@
 import { createSocketServer, startExpressServer, useStaticServer } from "./createServer";
-import { addSocketHandler } from "./socketServerHandler";
+import { addSocketHandler } from "./socketHandlers";
 
 main();
 
