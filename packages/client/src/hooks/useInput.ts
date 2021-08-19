@@ -9,6 +9,7 @@ export default function useInput(){
 
   return {
     value,
+    setValue,
     handleChange
   }
 }

@@ -15,8 +15,9 @@ export default function useRtcConnection(){
       dataChannelManager.setHandlers({
         onMessage: function(event: MessageEvent<any>, socketId: string){
           setChatMessage((messages) => [...messages, {
-            socketId,
-            message: event.data,
+            userId: socketId,
+            value: event.data,
+            time: new Date().getTime()
         }])
       }});
 
@@ -25,7 +26,7 @@ export default function useRtcConnection(){
           setChatMediaStreams(function(mediaStreams){
             const newStreams = [...rtcTrackEvent.streams];
             return [...mediaStreams, {
-              socketId: socketId,
+              userId: socketId,
               mediaStream:newStreams
             }]
           })

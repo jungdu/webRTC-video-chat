@@ -1,21 +1,19 @@
 import { atom } from "recoil";
 import { Room } from "@videochat/common";
+import { MessageInfo } from "types";
 
 export const connectedSocketIdState = atom<string | null>({
   key: "connectedSocketId",
   default: null,
 });
 
-export const chatMessagesState = atom<{
-  socketId: string;
-  message: string;
-}[]>({
+export const chatMessagesState = atom<MessageInfo[]>({
   key: "messagesState",
   default: []
 })
 
 export const chatMediaStreamsState = atom<{
-  socketId: string
+  userId: string
   mediaStream: MediaStream[]
 }[]>({
   key: "chatMediaStreamsState",

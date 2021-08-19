@@ -6,8 +6,8 @@ import ConnectedUser from "./ConnectedUser";
 
 const ConnectedUsers: React.FC = () => {
   const chatMediaStreams = useRecoilValue(chatMediaStreamsState);
-  return <div>{chatMediaStreams.map(({socketId, mediaStream}) => <ConnectedUser 
-    key={socketId}
+  return <div>{chatMediaStreams.map(({userId, mediaStream}) => <ConnectedUser 
+    key={userId}
     mediaStream={mediaStream}
   />)}</div>;
 };
