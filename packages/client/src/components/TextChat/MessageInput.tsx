@@ -7,14 +7,14 @@ interface MessageInputProps {
 }
 
 const Self = styled.div`
-  display: flex;
+	display: flex;
 `;
 
 const StyledInput = styled.input`
-  flex-grow: 1;
+	flex-grow: 1;
 	margin-right: 10px;
 	font-size: 18px;
-`
+`;
 
 const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {
 	const {
@@ -23,16 +23,20 @@ const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {
 		handleChange: handleChangeMessage,
 	} = useInput();
 
-	const handleInputKeyDown = (event: React.KeyboardEvent) => {
+	const handleInputKeyUp = (event: React.KeyboardEvent) => {
 		if (event.key === "Enter") {
-			sendMessage(message);
-			setMessage("");
+			if (message) {
+				sendMessage(message);
+				setMessage("");
+			}
 		}
 	};
 
 	const handleClickSendButton = () => {
-		sendMessage(message);
-		setMessage("");
+		if (message) {
+			sendMessage(message);
+			setMessage("");
+		}
 	};
 
 	return (
@@ -41,7 +45,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {
 				type="text"
 				value={message}
 				onChange={handleChangeMessage}
-				onKeyDown={handleInputKeyDown}
+				onKeyUp={handleInputKeyUp}
 			/>
 			<button onClick={handleClickSendButton}>보내기</button>
 		</Self>

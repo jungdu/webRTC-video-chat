@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { chatMessagesState } from "recoilStates/chatStates";
 import MessageInput from "./MessageInput";
 import MessageItem from "./MessageItem";
+import { dataChannelManager } from "managers";
 
 const Self = styled.div`
   display: flex;
@@ -23,14 +24,27 @@ const MessageList = styled.div`
 `
 
 const TextChat: React.FC = () => {
-  const chatMessages = useRecoilValue(chatMessagesState);
+  const [chatMessages, setChatMessages] = useRecoilState(chatMessagesState);
+  const messageListRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = () => {
-    
+  const handleSendMessage = (message: string) => {
+    setChatMessages((chatMessages) => [...chatMessages, {
+      time: new Date().getTime(),
+      userId: "Me",
+      value: message,
+    }])
+    dataChannelManager.broadcast(message);
   }
 
+  useEffect(() => {
+    const messageListCurrent = messageListRef.current;
+    if(messageListCurrent){
+      messageListCurrent.scrollTop = messageListCurrent.scrollHeight;
+    }
+  }, [chatMessages])
+
   return <Self>
-    <MessageList>
+    <MessageList ref={messageListRef}>
       {chatMessages.map(({time, userId, value}) => <MessageItem 
         userId={userId}
         time={time}

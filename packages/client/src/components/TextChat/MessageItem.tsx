@@ -30,7 +30,7 @@ const StyledMessageValue = styled.div`
 
 function formatTime(time: number){
   const date = new Date(time);
-  return dateformat(date, "hh:mm TT");
+  return dateformat(date, "hh:MM TT");
 }
 
 const MessageItem: React.FC<MessageProps> = ({
