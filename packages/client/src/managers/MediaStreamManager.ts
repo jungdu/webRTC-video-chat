@@ -13,11 +13,11 @@ export default class MediaStreamManager {
     this.currentUserStream = stream;
   }
 
-  private getUserMedia(){
+  getUserMedia(){
     return new Promise<MediaStream>((resolve, reject) => {
       window.navigator.getUserMedia({
         audio: false,
-        video: {width: 1280, height: 720},
+        video: {width: 640, height: 480},
       }, function(stream){
         resolve(stream);
       }, function(err){

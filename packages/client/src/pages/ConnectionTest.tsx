@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "@emotion/styled";
 import SocketInfo from "components/SocketInfo";
 import ChatMessages from "components/ChatMessages";
 import UserMediaPreview from "components/UserMediaPreview";
