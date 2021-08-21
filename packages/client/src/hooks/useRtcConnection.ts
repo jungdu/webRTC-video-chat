@@ -12,6 +12,8 @@ export default function useRTCConnection(){
     if(connectedSocketId){
       const currentSocket = socketManager.getCurrentSocket();
       rtcConnectionManager.addSocketHandler(currentSocket);
+      mediaStreamManager.setUserMediaStream();
+
       dataChannelManager.setHandlers({
         onMessage: function(event: MessageEvent<any>, socketId: string){
           setChatMessage((messages) => [...messages, {
@@ -23,11 +25,12 @@ export default function useRTCConnection(){
 
       mediaStreamManager.setHandlers({
         onNewTrack: function(rtcTrackEvent, socketId){
+          console.log("onNewTrack");
           setChatMediaStreams(function(mediaStreams){
             const newStreams = [...rtcTrackEvent.streams];
             return [...mediaStreams, {
               userId: socketId,
-              mediaStream:newStreams
+              mediaStream: newStreams,
             }]
           })
         }
@@ -35,6 +38,7 @@ export default function useRTCConnection(){
       
       return () => {
         rtcConnectionManager.deleteSocketHandler(currentSocket);
+        setChatMediaStreams([]);
       }
     }
   }, [connectedSocketId])

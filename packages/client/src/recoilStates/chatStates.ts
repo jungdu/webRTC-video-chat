@@ -13,8 +13,8 @@ export const chatMessagesState = atom<MessageInfo[]>({
 })
 
 export const chatMediaStreamsState = atom<{
-  userId: string
-  mediaStream: MediaStream[]
+  userId: string;
+  mediaStream: MediaStream[] | null;
 }[]>({
   key: "chatMediaStreamsState",
   default: [],

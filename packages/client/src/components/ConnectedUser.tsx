@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 
 interface ConnectedUserProps {
-  mediaStream: MediaStream[];
+  mediaStream: MediaStream[] | null;
 }
 
 const Self = styled.div``;
@@ -19,7 +19,7 @@ const ConnectedUser: React.FC<ConnectedUserProps> = ({
 
   useEffect(() =>{
     const videoRefCurrent = videoRef.current;
-    if(videoRefCurrent){
+    if(videoRefCurrent && mediaStream){
       videoRefCurrent.srcObject = mediaStream[0];
       videoRefCurrent.onloadedmetadata = function(){
         videoRefCurrent.play();

@@ -9,9 +9,9 @@ const ChatRoomList: React.FC = () => {
 		<ul>
 			{chatRooms.length > 0 ? (
 				chatRooms.map((chatRoom) => (
-					<li key={chatRoom.roomId}>
+					<a key={chatRoom.roomId} href={`/chat-room/${chatRoom.roomId}`}>
 						{chatRoom.roomId}: {chatRoom.roomName}
-					</li>
+					</a>
 				))
 			) : (
 				<li>생성된 방이 없습니다.</li>

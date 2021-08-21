@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { connectedSocketIdState } from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
+import StyledVideoList from "components/VideoChat/StyledVideoList";
 
 const Self = styled.div`
   display: flex;
@@ -40,6 +41,10 @@ const LeftPanel = styled.div`
   flex-grow: 1;
 `
 
+const VideoList = styled(StyledVideoList)`
+  height: 100%;
+`
+
 const ChatRoom: React.FC = () => {
   useRTCConnection();
   const connectedSocketId = useRecoilValue(connectedSocketIdState)
@@ -67,7 +72,7 @@ const ChatRoom: React.FC = () => {
   return <Self>
     <Content>
       <LeftPanel>
-
+        <VideoList />
       </LeftPanel>
       <RightPanel>
         <TextChat />

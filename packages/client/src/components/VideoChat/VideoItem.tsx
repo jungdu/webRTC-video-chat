@@ -10,7 +10,8 @@ interface VideoItemProps {
 
 const Self = styled(StyledRelativeHeightDiv)`
   background: #111;
-  width: 300px;
+  width: 100%;
+  margin: 5px;
 `;
 
 const StyledVideo = styled.video`

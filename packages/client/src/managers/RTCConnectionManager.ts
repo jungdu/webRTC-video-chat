@@ -112,9 +112,9 @@ export default class RTCConnectionManager{
   }
 
   deleteSocketHandler(socket: TypedClientSocket){
-    socket.off('offer')
-    socket.off('answer')
-    socket.off('candidate')
+    socket.off('offer');
+    socket.off('answer');
+    socket.off('candidate');
   }
 
   async connectPeer(socket: TypedClientSocket, answerSocketId: string){
