@@ -1,8 +1,14 @@
 import React from "react"
 import { ComponentStory } from "@storybook/react";
 import { RecoilRoot } from "recoil";
-import TextChat from "./index";
+import StyledTextChat from "./StyledTextChat";
 import { chatMessagesState } from "recoilStates/chatStates";
+import styled from "@emotion/styled";
+
+const TextChat = styled(StyledTextChat)`
+  width: 500px;
+  height: 500px;
+`
 
 export default {
   title: 'Components/TextChat/TextChat',

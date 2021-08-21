@@ -21,11 +21,11 @@ const StyledSender = styled.span`
 
 const StyledTime = styled.span`
   color: #666;
-  font-size: 15px;
+  font-size: 12px;
 `
 
 const StyledMessageValue = styled.div`
-  font-size: 18px;  
+  font-size: 15px;  
 `
 
 function formatTime(time: number){

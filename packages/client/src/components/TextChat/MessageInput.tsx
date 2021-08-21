@@ -13,7 +13,8 @@ const Self = styled.div`
 const StyledInput = styled.input`
 	flex-grow: 1;
 	margin-right: 10px;
-	font-size: 18px;
+	padding: 5px 5px;
+	font-size: 15px;
 `;
 
 const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {

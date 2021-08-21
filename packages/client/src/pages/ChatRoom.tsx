@@ -4,10 +4,41 @@ import { useParams } from "react-router-dom";
 import { chatRoomManager, rtcConnectionManager, socketManager } from "managers";
 import { useRecoilValue } from "recoil";
 import { connectedSocketIdState } from "recoilStates/chatStates";
-import TextChat from "components/TextChat";
+import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 
-const Self = styled.div``;
+const Self = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #202124;
+`;
+
+const Content = styled.div`
+  display: flex;
+  position: relative;
+  flex-grow: 1;
+`
+
+const BottomPanel = styled.div`
+  height: 50px;
+`
+
+const TextChat = styled(StyledTextChat)`
+  height: 100%;
+`
+
+const RightPanel = styled.div`
+  width: 420px;
+  background-color: #fff;
+  border-radius: 5px;
+  margin-top: 15px;
+  margin-right: 12px;
+`
+
+const LeftPanel = styled.div`
+  flex-grow: 1;
+`
 
 const ChatRoom: React.FC = () => {
   useRTCConnection();
@@ -34,8 +65,17 @@ const ChatRoom: React.FC = () => {
   }, [connectedSocketId])
 
   return <Self>
-    <h1>Chat Room</h1>
-    <TextChat />
+    <Content>
+      <LeftPanel>
+
+      </LeftPanel>
+      <RightPanel>
+        <TextChat />
+      </RightPanel>
+    </Content>
+    <BottomPanel>
+
+    </BottomPanel>
   </Self>;
 };
 
