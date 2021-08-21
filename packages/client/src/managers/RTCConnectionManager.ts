@@ -111,6 +111,12 @@ export default class RTCConnectionManager{
     });
   }
 
+  deleteSocketHandler(socket: TypedClientSocket){
+    socket.off('offer')
+    socket.off('answer')
+    socket.off('candidate')
+  }
+
   async connectPeer(socket: TypedClientSocket, answerSocketId: string){
     if(!socket.id){
       throw new Error("connectRTCPeer:::No socket id");

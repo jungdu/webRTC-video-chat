@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { chatMediaStreamsState, chatMessagesState, connectedSocketIdState } from "recoilStates/chatStates";
 
-export default function useRtcConnection(){
+export default function useRTCConnection(){
   const connectedSocketId = useRecoilValue(connectedSocketIdState);
   const setChatMessage = useSetRecoilState(chatMessagesState)
   const setChatMediaStreams = useSetRecoilState(chatMediaStreamsState)
@@ -32,6 +32,10 @@ export default function useRtcConnection(){
           })
         }
       })
+      
+      return () => {
+        rtcConnectionManager.deleteSocketHandler(currentSocket);
+      }
     }
   }, [connectedSocketId])
 }
