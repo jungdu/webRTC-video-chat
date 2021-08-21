@@ -18,9 +18,16 @@ export function addChatRoomHandlers(socket: TypedServerSocket, socketServer: Typ
   });
 
   socket.on("joinRoom", (msg, cb) => {
-    const room = chatRoomManager.joinRoom(msg.roomId, socket.id);
-    if(cb){
-      cb(room);
+    try{
+      const room = chatRoomManager.joinRoom(msg.roomId, socket.id);
+      console.log("room :", room)
+      if(cb){
+        cb(room);
+      }
+    }catch(e){
+      if(cb){
+        cb(null);
+      }
     }
   })
 
@@ -46,5 +53,9 @@ export function addChatRoomHandlers(socket: TypedServerSocket, socketServer: Typ
 
   socket.on("leaveLobby", () => {
     socket.join(lobby);
+  })
+
+  socket.on("disconnect", () => {
+    chatRoomManager.leaveJoinedRoom(socket.id)
   })
 }

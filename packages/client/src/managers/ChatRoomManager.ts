@@ -34,6 +34,18 @@ export default class ChatRoomManager{
     })
   }
 
+  joinRoom(socket: TypedClientSocket, roomId: string){
+    return new Promise<Room>((resolve, reject) => {
+      socket.emit('joinRoom', {roomId}, (room) => {
+        if(room){
+          resolve(room);
+        }else{
+          reject("No room to join")
+        }
+      });
+    })
+  }
+
   setHandler(handlers: ChatRoomHandlers){
     this.handlers = handlers;
   }

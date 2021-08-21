@@ -7,6 +7,7 @@ import {
 import useSocketConnection from 'hooks/useSocketConnection';
 import IndexPage from "pages/IndexPage"
 import ConnectionTest from 'pages/ConnectionTest';
+import ChatRoom from 'pages/ChatRoom';
 
 function App() {
   useSocketConnection();
@@ -15,10 +16,13 @@ function App() {
     <Router>
       <Switch>
         <Route path="/" exact>
-          <IndexPage/>
+          <IndexPage />
         </Route>
         <Route path="/connection-test" exact>
           <ConnectionTest/>
+        </Route>
+        <Route path="/chat-room/:chatRoomId">
+          <ChatRoom />
         </Route>
       </Switch>
     </Router>

@@ -48,7 +48,7 @@ type ServerRTCConnectionMessage = {
 
 type ClientChatRoomMessage = {
   createRoom: SocketHandler<[msg: {roomName: string}, cb?: (room:Room) => void]>;
-  joinRoom: SocketHandler<[msg: {roomId:string}, cb?: (room:Room) => void]>;
+  joinRoom: SocketHandler<[msg: {roomId:string}, cb?: (room:Room|null) => void]>;
   joinLobby: SocketHandler<[cb: (room: Room[]) => void]>;
   getRooms: SocketHandler<[cb: (room: Room[]) => void]>;
   getRoomInfo: SocketHandler<[msg: {roomId: string}]>

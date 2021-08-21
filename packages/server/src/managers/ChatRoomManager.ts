@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid"
+import UserManager from "./UserManager"
 
 export interface Room {
   roomId: string;
@@ -7,8 +8,17 @@ export interface Room {
   userSocketIds: string[];
 }
 
+export class NoRoomError extends Error{
+  constructor(roomId: string){
+    const message = `There is no room with the id ${roomId}`
+    super(message)
+  }
+}
 export default class ChatRoomManager {
+  userManager: UserManager = new UserManager();
+
   rooms:Room[] = [];
+  joinedRoomById = new Map<string, string>()
 
   private isUserInRoom(room: Room, socketId: string){
     return !!room.userSocketIds.find(userSocketId => userSocketId === socketId);
@@ -27,10 +37,17 @@ export default class ChatRoomManager {
       roomId: nanoid(),
       roomName,
       createdBy,
-      userSocketIds: [createdBy],
+      userSocketIds: [],
     };
     this.rooms.push(newRoom)
     return newRoom;
+  }
+
+  leaveJoinedRoom(socketId: string){
+    const roomId = this.userManager.getJoinedRoomId(socketId);
+    if(roomId){
+      this.leaveRoom(roomId, socketId)
+    }
   }
 
   leaveRoom(roomId: string, socketId: string){
@@ -56,7 +73,7 @@ export default class ChatRoomManager {
   getRoom(roomId: string){
     const room = this.rooms.find(room => room.roomId === roomId);
     if(!room){
-      throw new Error(`No room roomId: ${roomId}`)
+      throw new NoRoomError(roomId)
     }
     return room;
   }
@@ -68,6 +85,7 @@ export default class ChatRoomManager {
     }
 
     room.userSocketIds.push(socketId);
+    this.userManager.setJoinedRoom(socketId, roomId);
     return room;
   }
 }
