@@ -1,7 +1,7 @@
 import {Global, css} from "@emotion/react"
 
 const globalStyle = css`
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap');
 
   body {
     margin: 0;
@@ -9,6 +9,7 @@ const globalStyle = css`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding: 0;
+    color: #333;
   }
 
   code {
