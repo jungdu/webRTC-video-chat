@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useRecoilState } from "recoil";
 import { chatMessagesState } from "recoilStates/chatStates";
-import MessageInput from "./MessageInput";
 import MessageItem from "./MessageItem";
 import { dataChannelManager } from "managers";
+import TextInput from "components/common/TextInput";
 
 interface TextChatProps {
 	className?: string;
@@ -63,7 +63,7 @@ const StyledTextChat: React.FC<TextChatProps> = ({ className }) => {
 					<MessageItem userId={userId} time={time} value={value} />
 				))}
 			</MessageList>
-			<MessageInput sendMessage={handleSendMessage} />
+			<TextInput onSubmit={handleSendMessage} submitButtonText="보내기"/>
 		</Self>
 	);
 };

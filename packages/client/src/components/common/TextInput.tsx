@@ -2,8 +2,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import useInput from "hooks/useInput";
 
-interface MessageInputProps {
-	sendMessage: (message: string) => void;
+interface TextInputProps {
+	onSubmit: (value: string) => void;
+  submitButtonText: string;
 }
 
 const Self = styled.div`
@@ -17,26 +18,34 @@ const StyledInput = styled.input`
 	font-size: 15px;
 `;
 
-const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {
+const StyledButton = styled.button`	
+	border: none;
+	background: #005FCC;
+	color: #fff;
+	padding: 10px 20px;
+	font-size: 15px;
+`
+
+const TextInput: React.FC<TextInputProps> = ({ onSubmit, submitButtonText }) => {
 	const {
-		value: message,
-		setValue: setMessage,
+		value,
+		setValue: setValue,
 		handleChange: handleChangeMessage,
 	} = useInput();
 
 	const handleInputKeyUp = (event: React.KeyboardEvent) => {
 		if (event.key === "Enter") {
-			if (message) {
-				sendMessage(message);
-				setMessage("");
+			if (value) {
+				onSubmit(value);
+				setValue("");
 			}
 		}
 	};
 
 	const handleClickSendButton = () => {
-		if (message) {
-			sendMessage(message);
-			setMessage("");
+		if (value) {
+			onSubmit(value);
+			setValue("");
 		}
 	};
 
@@ -44,13 +53,13 @@ const MessageInput: React.FC<MessageInputProps> = ({ sendMessage }) => {
 		<Self>
 			<StyledInput
 				type="text"
-				value={message}
+				value={value}
 				onChange={handleChangeMessage}
 				onKeyUp={handleInputKeyUp}
 			/>
-			<button onClick={handleClickSendButton}>보내기</button>
+			<StyledButton onClick={handleClickSendButton}>{submitButtonText}</StyledButton>
 		</Self>
 	);
 };
 
-export default MessageInput;
+export default TextInput;

@@ -1,23 +1,21 @@
 import useInput from "hooks/useInput";
 import { chatRoomManager, socketManager } from "managers";
 import React from "react";
-
-// import {useHistory} from "react-router-dom"
+import { useHistory } from "react-router-dom";
+import TextInput from "./common/TextInput";
 
 const CreateRoomForm: React.FC = () => {
-  const {
-    value: roomName,
-    handleChange
-  } = useInput();
+  const history = useHistory();
 
-  const handleClickCreateRoom = () => {
-    chatRoomManager.createRoom(socketManager.getCurrentSocket(), roomName)
+  const handleClickCreateRoom = (roomName: string) => {
+    if(roomName){
+      chatRoomManager.createRoom(socketManager.getCurrentSocket(), roomName).then(room => {
+        history.push(`/chat-room/${room.roomId}`)
+      })
+    }
   }
 
-  return <div>
-    <input type="text" onChange={handleChange}/>
-    <button onClick={handleClickCreateRoom}>방 생성</button>
-  </div>;
+  return <TextInput onSubmit={handleClickCreateRoom} submitButtonText="방 생성" />;
 };
 
 export default CreateRoomForm;
