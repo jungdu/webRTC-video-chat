@@ -8,9 +8,9 @@ import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 
+const bottomHeightPx = 50;
+
 const Self = styled.div`
-  display: flex;
-  flex-direction: column;
   height: 100vh;
   background: #202124;
 `;
@@ -18,11 +18,11 @@ const Self = styled.div`
 const Content = styled.div`
   display: flex;
   position: relative;
-  flex-grow: 1;
+  height: calc(100% - ${bottomHeightPx}px);
 `
 
 const BottomPanel = styled.div`
-  height: 50px;
+  height: ${bottomHeightPx}px;
 `
 
 const TextChat = styled(StyledTextChat)`
@@ -33,8 +33,7 @@ const RightPanel = styled.div`
   width: 420px;
   background-color: #fff;
   border-radius: 5px;
-  margin-top: 15px;
-  margin-right: 12px;
+  height: 100%;
 `
 
 const LeftPanel = styled.div`
