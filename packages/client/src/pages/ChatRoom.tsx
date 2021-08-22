@@ -62,9 +62,18 @@ const ChatRoom: React.FC = () => {
     }
   }
 
+  const leaveRoom = () => {
+    if(chatRoomId){
+      chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId)
+    }
+  }
+
   useEffect(() => {
     if(connectedSocketId){
       joinRoom();      
+      return () => {
+        leaveRoom();
+      }
     }
   }, [connectedSocketId])
 

@@ -46,6 +46,15 @@ export default class ChatRoomManager{
     })
   }
 
+  leaveRoom(socket: TypedClientSocket, roomId: string){
+    socket.emit('leaveRoom', {roomId});
+  }
+
+  removeSocketHandler(socket: TypedClientSocket){
+    socket.off('createdRoom');
+    socket.off('deletedRoom');
+  }
+
   setHandler(handlers: ChatRoomHandlers){
     this.handlers = handlers;
   }
@@ -58,6 +67,7 @@ export default class ChatRoomManager{
   }
 
   unsubscribe(socket: TypedClientSocket){
+    this.removeSocketHandler(socket);
     socket.emit("leaveLobby")
     this.setRooms([]);
   }

@@ -20,7 +20,10 @@ export default function useChatRoomList(){
     if(connectedSocketId){
       const currentSocket = socketManager.getCurrentSocket();
       chatRoomManager.subscribe(currentSocket);
-
+      return () => {
+        setChatRooms([]);
+        chatRoomManager.unsubscribe(currentSocket)
+      };
     }
   }, [connectedSocketId])
 }

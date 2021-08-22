@@ -36,6 +36,11 @@ class ConnectionStore {
         throw new Error("Invalid RTCConnectionType");
     }
   }
+
+  clear(){
+    this.answerConnections.clear();
+    this.offerConnections.clear();
+  }
 }
 
 export default class RTCConnectionManager{
@@ -115,6 +120,7 @@ export default class RTCConnectionManager{
     socket.off('offer');
     socket.off('answer');
     socket.off('candidate');
+    this.connectionStore.clear();
   }
 
   async connectPeer(socket: TypedClientSocket, answerSocketId: string){

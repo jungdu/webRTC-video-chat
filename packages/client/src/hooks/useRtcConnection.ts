@@ -25,7 +25,6 @@ export default function useRTCConnection(){
 
       mediaStreamManager.setHandlers({
         onNewTrack: function(rtcTrackEvent, socketId){
-          console.log("onNewTrack");
           setChatMediaStreams(function(mediaStreams){
             const newStreams = [...rtcTrackEvent.streams];
             return [...mediaStreams, {

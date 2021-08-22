@@ -14,6 +14,16 @@ export default class UserManager {
     this.users.set(socketId, {...userInfo, roomId});
   }
 
+  removeJoinedRoom(socketId: string, roomId: string){
+    const userInfo = this.users.get(socketId);
+
+    if(userInfo && userInfo.roomId && userInfo.roomId === roomId){
+      this.users.set(socketId, {...userInfo, roomId: undefined})
+    }else{
+      throw new Error("Invalid roomId to remove userInfo: ");
+    }
+  }
+
   getJoinedRoomId(socketId: string){
     const userInfo = this.users.get(socketId);
     if(userInfo && userInfo.roomId){

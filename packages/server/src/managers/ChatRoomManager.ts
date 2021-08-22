@@ -46,8 +46,12 @@ export default class ChatRoomManager {
   leaveJoinedRoom(socketId: string){
     const roomId = this.userManager.getJoinedRoomId(socketId);
     if(roomId){
-      this.leaveRoom(roomId, socketId)
+      const leavedRoom = this.leaveRoom(roomId, socketId)
+      if(!leavedRoom){
+        return roomId;
+      }
     }
+    return null;
   }
 
   leaveRoom(roomId: string, socketId: string){
@@ -57,7 +61,8 @@ export default class ChatRoomManager {
     }
     
     room.userSocketIds = room.userSocketIds.filter(userSocketId => userSocketId !== socketId);
-    
+    this.userManager.removeJoinedRoom(socketId, roomId);
+
     if(room.userSocketIds.length <= 0){
       this.deleteRoom(room);
       return null;

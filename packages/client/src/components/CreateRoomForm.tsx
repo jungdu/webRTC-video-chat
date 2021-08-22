@@ -7,7 +7,7 @@ import TextInput from "./common/TextInput";
 const CreateRoomForm: React.FC = () => {
   const history = useHistory();
 
-  const handleClickCreateRoom = (roomName: string) => {
+  const handleSubmit = (roomName: string) => {
     if(roomName){
       chatRoomManager.createRoom(socketManager.getCurrentSocket(), roomName).then(room => {
         history.push(`/chat-room/${room.roomId}`)
@@ -15,7 +15,7 @@ const CreateRoomForm: React.FC = () => {
     }
   }
 
-  return <TextInput onSubmit={handleClickCreateRoom} submitButtonText="방 생성" />;
+  return <TextInput onSubmit={handleSubmit} submitButtonText="방 생성" />;
 };
 
 export default CreateRoomForm;

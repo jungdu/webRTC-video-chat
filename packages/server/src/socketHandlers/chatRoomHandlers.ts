@@ -56,6 +56,9 @@ export function addChatRoomHandlers(socket: TypedServerSocket, socketServer: Typ
   })
 
   socket.on("disconnect", () => {
-    chatRoomManager.leaveJoinedRoom(socket.id)
+    const deletedRoomId = chatRoomManager.leaveJoinedRoom(socket.id)
+    if(deletedRoomId){
+      socket.to(lobby).emit("deletedRoom", deletedRoomId);
+    }
   })
 }
