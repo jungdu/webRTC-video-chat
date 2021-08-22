@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter } from "react-router-dom"
 import GlobalStyle from '../src/GlobalStyle';
 
 export const parameters = {
@@ -12,5 +13,6 @@ export const parameters = {
 }
 
 export const decorators = [
-  (Story) => (<><GlobalStyle/><Story /></>),
+  (storyFn) => (<><GlobalStyle/>{storyFn()}</>),
+  (storyFn) => <MemoryRouter>{storyFn()}</MemoryRouter>
 ];
