@@ -30,10 +30,8 @@ export default class MediaStreamManager {
     this.handlers = handlers;
   }
   
-  async setUserMediaStream(){
-    const stream = await this.getUserMedia();
+  setUserMediaStream(stream: MediaStream){
     this.setCurrentUserStream(stream);
-    return stream;
   }
 
   addRTCMediaStreamHandler(rtcPeerConnection: RTCPeerConnection, socketId: string){

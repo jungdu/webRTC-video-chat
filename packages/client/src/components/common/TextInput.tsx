@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import useInput from "hooks/useInput";
+import { primaryButtonStyle } from "styles/ButtonStyles";
 
 interface TextInputProps {
 	onSubmit: (value: string) => void;
@@ -19,12 +20,7 @@ const StyledInput = styled.input`
 `;
 
 const StyledButton = styled.button`	
-	border: none;
-	background: #005FCC;
-	color: #fff;
-	padding: 10px 20px;
-	font-size: 15px;
-	border-radius: 3px;;
+	${primaryButtonStyle}
 `
 
 const TextInput: React.FC<TextInputProps> = ({ onSubmit, submitButtonText }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 import { chatRoomManager, rtcConnectionManager, socketManager } from "managers";
@@ -7,89 +7,100 @@ import { connectedSocketIdState } from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
+import MediaSetting from "components/MediaSetting";
 
 const bottomHeightPx = 50;
 
 const Self = styled.div`
-  height: 100vh;
-  background: #202124;
+	height: 100vh;
+	background: #202124;
 `;
 
 const Content = styled.div`
-  display: flex;
-  position: relative;
-  height: calc(100% - ${bottomHeightPx}px);
-`
+	display: flex;
+	position: relative;
+	height: calc(100% - ${bottomHeightPx}px);
+`;
 
 const BottomPanel = styled.div`
-  height: ${bottomHeightPx}px;
-`
+	height: ${bottomHeightPx}px;
+`;
 
 const TextChat = styled(StyledTextChat)`
-  height: 100%;
-`
+	height: 100%;
+`;
 
 const RightPanel = styled.div`
-  width: 420px;
-  background-color: #fff;
-  border-radius: 5px;
-  height: 100%;
-`
+	width: 420px;
+	background-color: #fff;
+	border-radius: 5px;
+	height: 100%;
+`;
 
 const LeftPanel = styled.div`
-  flex-grow: 1;
-`
+	flex-grow: 1;
+`;
 
 const VideoList = styled(StyledVideoList)`
-  height: 100%;
-`
+	height: 100%;
+`;
 
 const ChatRoom: React.FC = () => {
-  useRTCConnection();
-  const connectedSocketId = useRecoilValue(connectedSocketIdState)
-  
-  const { chatRoomId } = useParams<{
-    chatRoomId?: string;
-  }>();
+	useRTCConnection();
+	const connectedSocketId = useRecoilValue(connectedSocketIdState);
+	const [finishedMediaSetting, setFinishedMediaSetting] = useState<boolean>(
+		false
+	);
 
-  const joinRoom = async () => {
-    if(chatRoomId){
-      const currentSocket = socketManager.getCurrentSocket();
-      const joinedRoom = await chatRoomManager.joinRoom(socketManager.getCurrentSocket(), chatRoomId);
-      joinedRoom.userSocketIds.forEach((socketId) => {
-        rtcConnectionManager.connectPeer(currentSocket, socketId);
-      })
-    }
-  }
+	const { chatRoomId } = useParams<{
+		chatRoomId?: string;
+	}>();
 
-  const leaveRoom = () => {
-    if(chatRoomId){
-      chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId)
-    }
-  }
+	const joinRoom = async () => {
+		if (chatRoomId) {
+			const currentSocket = socketManager.getCurrentSocket();
+			const joinedRoom = await chatRoomManager.joinRoom(
+				socketManager.getCurrentSocket(),
+				chatRoomId
+			);
+			joinedRoom.userSocketIds.forEach((socketId) => {
+				rtcConnectionManager.connectPeer(currentSocket, socketId);
+			});
+		}
+	};
 
-  useEffect(() => {
-    if(connectedSocketId){
-      joinRoom();      
-      return () => {
-        leaveRoom();
-      }
-    }
-  }, [connectedSocketId])
+	const leaveRoom = () => {
+		if (chatRoomId) {
+			chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId);
+		}
+	};
 
-  return <Self>
-    <Content>
-      <LeftPanel>
-        <VideoList />
-      </LeftPanel>
-      <RightPanel>
-        <TextChat />
-      </RightPanel>
-    </Content>
-    <BottomPanel>
+	useEffect(() => {
+		if (connectedSocketId && finishedMediaSetting) {
+			joinRoom();
+			return () => {
+				leaveRoom();
+			};
+		}
+	}, [connectedSocketId, finishedMediaSetting]);
 
-    </BottomPanel>
-  </Self>;
+	return finishedMediaSetting ? (
+    <Self>
+      <Content>
+        <LeftPanel>
+          <VideoList />
+        </LeftPanel>
+        <RightPanel>
+          <TextChat />
+        </RightPanel>
+      </Content>
+      <BottomPanel></BottomPanel>
+    </Self>
+  ) : (
+    <MediaSetting onFinishMediaSetting={() => {
+			setFinishedMediaSetting(true);
+		}}/>
+  );
 };
 
 export default ChatRoom;

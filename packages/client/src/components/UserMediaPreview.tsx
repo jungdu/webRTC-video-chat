@@ -13,16 +13,20 @@ const UserMediaPreview:React.FC = () => {
   useEffect(() => {
     const videoRefCurrent = videoRef.current;
     if(videoRefCurrent){
-      mediaStreamManager.setUserMediaStream().then(stream =>{
+      mediaStreamManager.getUserMedia().then(stream => {
+        mediaStreamManager.setUserMediaStream(stream);
         videoRefCurrent.srcObject = stream; 
-        videoRefCurrent.onloadedmetadata = function(){
-          videoRefCurrent.play();
-        }
-      });
+      })
     }
   }, [videoRef.current])
 
-  return <StyledVideo ref={videoRef}/>
+  const handleLoadedMetadata = () => {
+    if(videoRef.current){
+      videoRef.current.play();
+    }
+  }
+
+  return <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
 }
 
 export default UserMediaPreview
