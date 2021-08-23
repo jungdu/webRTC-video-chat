@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import StyledRelativeHeightDiv from "components/common/StyledRelativeHeightDiv";
-import { userInfo } from "os";
 
 interface VideoItemProps {
   stream: MediaStream | null,

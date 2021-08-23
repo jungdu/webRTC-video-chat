@@ -24,6 +24,7 @@ const StyledButton = styled.button`
 	color: #fff;
 	padding: 10px 20px;
 	font-size: 15px;
+	border-radius: 3px;;
 `
 
 const TextInput: React.FC<TextInputProps> = ({ onSubmit, submitButtonText }) => {
