@@ -1,3 +1,4 @@
+import RTCConnectionStore from "./RTCConnectionStore";
 
 interface DataChannelHandlers{
   onOpen?: (socketId: string) => void;
@@ -5,8 +6,12 @@ interface DataChannelHandlers{
   onClose?: (socketId: string) => void;
 }
 export default class DataChannelManager {
-  private dataChannels: RTCDataChannel[] = [];
   private handlers: DataChannelHandlers = {};
+  private connectionStore: RTCConnectionStore;
+  
+  constructor(connectionStore: RTCConnectionStore){
+    this.connectionStore = connectionStore;
+  }
   
   private addDataChannelHandlers(dataChannel: RTCDataChannel, socketId: string){
     dataChannel.addEventListener('open', () => {
@@ -21,19 +26,19 @@ export default class DataChannelManager {
     })
   
     dataChannel.addEventListener('close', () => {
-      this.removeClosedChannels();
+      this.connectionStore.deleteDataChannel(socketId);
+      // dataChannel이 닫히면 close 이벤트가 바로 들어옴.
+      // RTCConnectionStateChange 이벤트는 반응이 느려서 그 사이에 사용자가 같은 채팅방을 다시 방문하면 에러가 발생하게됨
+      this.connectionStore.deleteConnection(socketId);
+
       const {onClose} = this.handlers;
       if(onClose) onClose(socketId);
     })
   }
 
   private registerDataChannel(dataChannel: RTCDataChannel, socketId:string){
-    this.dataChannels.push(dataChannel);
+    this.connectionStore.addDataChannel(socketId, dataChannel)
     this.addDataChannelHandlers(dataChannel, socketId);
-  }
-
-  private removeClosedChannels(){
-    this.dataChannels.filter(dataChannel => dataChannel.readyState === "closed")
   }
 
   addRtcDataChannelHandler(rtcConnection: RTCPeerConnection, socketId: string){
@@ -44,11 +49,11 @@ export default class DataChannelManager {
   }
 
   broadcast(data: string){
-    this.dataChannels
-      .filter(dataChannels => dataChannels.readyState === "open")
-      .forEach(dataChannel => {
+    this.connectionStore.getDataChannels().forEach((dataChannel) => {
+      if(dataChannel.readyState === "open"){
         dataChannel.send(data);
-      });
+      }
+    })
   }
 
   createDataChannel(peerConnection: RTCPeerConnection, socketId:string){

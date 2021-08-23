@@ -1,6 +1,7 @@
 import DataChannelManager from "./DataChannelManager";
 import MediaStreamManager from "./MediaStreamManager";
 import { TypedClientSocket, RTCConnectionType } from "@videochat/common"
+import RTCConnectionStore from "./RTCConnectionStore";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -9,51 +10,21 @@ const ICE_SERVERS = {
   ],
 };
 
-class ConnectionStore {
-  answerConnections = new Map<string, RTCPeerConnection>();
-  offerConnections = new Map<string, RTCPeerConnection>();
 
-  setConnection(type: RTCConnectionType, socketId: string, connection: RTCPeerConnection){
-    const connectionMap = this.getConnectionMap(type);
-    if(connectionMap.get(socketId)){
-      throw new Error("Already exist socketId")
-    }
-    connectionMap.set(socketId, connection);
-  }
-  
-  getConnection(type: RTCConnectionType, socketId: string){
-    const connectionMap = this.getConnectionMap(type);
-    return connectionMap.get(socketId);
-  }
-
-  getConnectionMap(type: RTCConnectionType){
-    switch(type){
-      case RTCConnectionType.ANSWER:
-        return this.answerConnections;
-      case RTCConnectionType.OFFER:
-        return this.offerConnections;
-      default:
-        throw new Error("Invalid RTCConnectionType");
-    }
-  }
-
-  clear(){
-    this.answerConnections.clear();
-    this.offerConnections.clear();
-  }
-}
 
 export default class RTCConnectionManager{
-  connectionStore = new ConnectionStore();
+  connectionStore: RTCConnectionStore;
   dataChannelManager:DataChannelManager;
   mediaStreamManager:MediaStreamManager;
 
   constructor(managers: {
     dataChannelManager: DataChannelManager,
     mediaStreamManager: MediaStreamManager,
-  }){
+  }, connectionStore: RTCConnectionStore){
     this.dataChannelManager = managers.dataChannelManager;
     this.mediaStreamManager = managers.mediaStreamManager;
+
+    this.connectionStore = connectionStore;
   }
 
   private addIceCandidateHandler(connection: RTCPeerConnection, destSocketId: string, type: RTCConnectionType, socket:TypedClientSocket){
@@ -120,7 +91,10 @@ export default class RTCConnectionManager{
     socket.off('offer');
     socket.off('answer');
     socket.off('candidate');
-    this.connectionStore.clear();
+  }
+
+  closeConnections(){
+    this.connectionStore.closeConnections();
   }
 
   async connectPeer(socket: TypedClientSocket, answerSocketId: string){
