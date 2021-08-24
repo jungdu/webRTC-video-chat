@@ -62,11 +62,14 @@ describe("Chat Room Handlers", () => {
       clientSocket.emit("createRoom", {
         roomName: "First Room"
       }, (newRoom:Room) => {
-        client2.emit('joinRoom', {roomId: newRoom.roomId}, (joinedRoom: Room) => {
-          expect(newRoom.roomId).toEqual(joinedRoom.roomId)
-          expect(joinedRoom.userSocketIds.length).toBe(2);
-          expect(joinedRoom.userSocketIds).toContain(client2.id);
-          expect(joinedRoom.userSocketIds).toContain(clientSocket.id);
+        client2.emit('joinRoom', {roomId: newRoom.roomId}, (joinedRoom: Room|null) => {
+          expect(joinedRoom).toBeTruthy();
+          if(joinedRoom){
+            expect(newRoom.roomId).toEqual(joinedRoom.roomId)
+            expect(joinedRoom.userSocketIds.length).toBe(2);
+            expect(joinedRoom.userSocketIds).toContain(client2.id);
+            expect(joinedRoom.userSocketIds).toContain(clientSocket.id);
+          }
           done();
         })
       });
@@ -78,7 +81,7 @@ describe("Chat Room Handlers", () => {
       clientSocket.emit("createRoom", {
         roomName: "First Room"
       }, (newRoom:Room) =>{
-        client2.emit('joinRoom', {roomId: newRoom.roomId}, (joinedRoom: Room) => {
+        client2.emit('joinRoom', {roomId: newRoom.roomId}, () => {
           client2.emit('leaveRoom', {roomId: newRoom.roomId});
           clientSocket.emit("getRooms", (rooms: Room[]) => {
             expect(rooms.length).toBe(1);
