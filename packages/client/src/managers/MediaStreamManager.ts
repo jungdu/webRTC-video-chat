@@ -1,12 +1,13 @@
 
 interface MediaStreamManagerHandlers {
   onNewTrack: (trackEvent: RTCTrackEvent, socketId: string) => void;
+
 }
 
 export default class MediaStreamManager {
   currentUserStream: MediaStream | null = null;
   handlers: MediaStreamManagerHandlers = {
-    onNewTrack: () => undefined,
+    onNewTrack: () => {},
   }
   
   private setCurrentUserStream(stream: MediaStream){
@@ -38,6 +39,7 @@ export default class MediaStreamManager {
     rtcPeerConnection.ontrack = (event) => {
       this.handlers.onNewTrack(event, socketId)
     };
+
     if(this.currentUserStream){
       rtcPeerConnection.addTrack(this.currentUserStream.getTracks()[0], this.currentUserStream);
     }

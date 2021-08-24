@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 import { chatRoomManager, rtcConnectionManager, socketManager } from "managers";
-import { useRecoilValue } from "recoil";
-import { connectedSocketIdState } from "recoilStates/chatStates";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { chatMediaStreamsState, connectedSocketIdState } from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
@@ -48,9 +48,14 @@ const VideoList = styled(StyledVideoList)`
 const ChatRoom: React.FC = () => {
 	useRTCConnection();
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
-	const [finishedMediaSetting, setFinishedMediaSetting] = useState<boolean>(
-		false
-	);
+	const [finishedMediaSetting, setFinishedMediaSetting] = useState<{
+		finished: boolean;
+		userMediaStream: MediaStream | null;
+	}>({
+		finished: false,
+		userMediaStream: null
+	});
+	const setChatMediaStream = useSetRecoilState(chatMediaStreamsState);
 
 	const { chatRoomId } = useParams<{
 		chatRoomId?: string;
@@ -63,7 +68,23 @@ const ChatRoom: React.FC = () => {
 				socketManager.getCurrentSocket(),
 				chatRoomId
 			);
-			joinedRoom.userSocketIds.forEach((socketId) => {
+
+			const otherUsersSocketId = joinedRoom.userSocketIds.filter(userSocketId => userSocketId !== connectedSocketId);
+			
+			setChatMediaStream([
+				{
+					userId: "me",
+					mediaStream: finishedMediaSetting.userMediaStream ? [finishedMediaSetting.userMediaStream]: null,
+				},
+				...otherUsersSocketId.map(socketId => {
+					return {
+						userId: socketId,
+						mediaStream: null,
+					}
+				})
+			]);
+
+			otherUsersSocketId.forEach((socketId) => {
 				rtcConnectionManager.connectPeer(currentSocket, socketId);
 			});
 		}
@@ -76,7 +97,7 @@ const ChatRoom: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (connectedSocketId && finishedMediaSetting) {
+		if (connectedSocketId && finishedMediaSetting.finished) {
 			joinRoom();
 			return () => {
 				leaveRoom();
@@ -84,7 +105,7 @@ const ChatRoom: React.FC = () => {
 		}
 	}, [connectedSocketId, finishedMediaSetting]);
 
-	return finishedMediaSetting ? (
+	return finishedMediaSetting.finished ? (
     <Self>
       <Content>
         <LeftPanel>
@@ -97,8 +118,11 @@ const ChatRoom: React.FC = () => {
       <BottomPanel></BottomPanel>
     </Self>
   ) : (
-    <MediaSetting onFinishMediaSetting={() => {
-			setFinishedMediaSetting(true);
+    <MediaSetting onFinishMediaSetting={(mediaStream) => {
+			setFinishedMediaSetting({
+				finished: true,
+				userMediaStream: mediaStream
+			});
 		}}/>
   );
 };

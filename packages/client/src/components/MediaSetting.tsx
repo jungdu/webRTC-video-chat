@@ -4,7 +4,7 @@ import { mediaStreamManager } from "managers";
 import { primaryButtonStyle } from "styles/ButtonStyles";
 
 interface MediaSettingProps {
-  onFinishMediaSetting: () => void;
+  onFinishMediaSetting: (mediaStream: MediaStream | null) => void;
 }
 
 const Self = styled.div`
@@ -26,9 +26,11 @@ const StyledButton = styled.button`
 
 const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const mediaStreamRef = useRef<null | MediaStream>(null);
   
   useEffect(() => {
     mediaStreamManager.getUserMedia().then((stream) => {
+      mediaStreamRef.current = stream;
       mediaStreamManager.setUserMediaStream(stream);
       if(videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -45,10 +47,14 @@ const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
     }
   }
   
+  const handleSubmit = () => {
+    onFinishMediaSetting(mediaStreamRef.current);
+  }
+  
   return <Self>
     <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
     <div>
-      <StyledButton onClick={onFinishMediaSetting}>입장</StyledButton>
+      <StyledButton onClick={handleSubmit}>입장</StyledButton>
     </div>
   </Self>;
 };
