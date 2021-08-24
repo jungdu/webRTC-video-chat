@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import useInput from "hooks/useInput";
-import { primaryButtonStyle } from "styles/ButtonStyles";
+import { primaryButtonStyle, textInputStyle } from "styles";
 
 interface TextInputProps {
 	onSubmit: (value: string) => void;
@@ -13,10 +13,9 @@ const Self = styled.div`
 `;
 
 const StyledInput = styled.input`
+	${textInputStyle}
 	flex-grow: 1;
 	margin-right: 10px;
-	padding: 5px 5px;
-	font-size: 15px;
 `;
 
 const StyledButton = styled.button`	

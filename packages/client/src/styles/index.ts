@@ -10,3 +10,8 @@ export const primaryButtonStyle = css`
   cursor: pointer;
 	padding: 10px 20px;
 `
+
+export const textInputStyle = css`
+	padding: 5px 5px;
+	font-size: 15px;
+`

@@ -48,12 +48,14 @@ const VideoList = styled(StyledVideoList)`
 const ChatRoom: React.FC = () => {
 	useRTCConnection();
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
-	const [finishedMediaSetting, setFinishedMediaSetting] = useState<{
+	const [finishedUserSetting, setFinishedUserSetting] = useState<{
 		finished: boolean;
 		userMediaStream: MediaStream | null;
+		userName: string | null;
 	}>({
 		finished: false,
-		userMediaStream: null
+		userMediaStream: null,
+		userName: null,
 	});
 	const setChatMediaStream = useSetRecoilState(chatMediaStreamsState);
 
@@ -74,7 +76,7 @@ const ChatRoom: React.FC = () => {
 			setChatMediaStream([
 				{
 					userId: "me",
-					mediaStream: finishedMediaSetting.userMediaStream ? [finishedMediaSetting.userMediaStream]: null,
+					mediaStream: finishedUserSetting.userMediaStream ? [finishedUserSetting.userMediaStream]: null,
 				},
 				...otherUsersSocketId.map(socketId => {
 					return {
@@ -97,15 +99,15 @@ const ChatRoom: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (connectedSocketId && finishedMediaSetting.finished) {
+		if (connectedSocketId && finishedUserSetting.finished) {
 			joinRoom();
 			return () => {
 				leaveRoom();
 			};
 		}
-	}, [connectedSocketId, finishedMediaSetting]);
+	}, [connectedSocketId, finishedUserSetting]);
 
-	return finishedMediaSetting.finished ? (
+	return finishedUserSetting.finished ? (
     <Self>
       <Content>
         <LeftPanel>
@@ -118,10 +120,11 @@ const ChatRoom: React.FC = () => {
       <BottomPanel></BottomPanel>
     </Self>
   ) : (
-    <MediaSetting onFinishMediaSetting={(mediaStream) => {
-			setFinishedMediaSetting({
+    <MediaSetting onFinishMediaSetting={(mediaStream, userName) => {
+			setFinishedUserSetting({
 				finished: true,
-				userMediaStream: mediaStream
+				userMediaStream: mediaStream,
+				userName,
 			});
 		}}/>
   );
