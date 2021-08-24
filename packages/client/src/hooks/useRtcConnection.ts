@@ -17,6 +17,7 @@ export default function useRTCConnection() {
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
 	const setChatMessage = useSetRecoilState(chatMessagesState);
 	const setChatMediaStreams = useSetRecoilState(chatMediaStreamsState);
+	const setChatMessages = useSetRecoilState(chatMessagesState);
 
 	useEffect(() => {
 		if (connectedSocketId) {
@@ -67,6 +68,7 @@ export default function useRTCConnection() {
 				rtcConnectionManager.deleteSocketHandler(currentSocket);
 				rtcConnectionManager.closeConnections();
 				setChatMediaStreams([]);
+				setChatMessages([])
 			};
 		}
 	}, [connectedSocketId]);
