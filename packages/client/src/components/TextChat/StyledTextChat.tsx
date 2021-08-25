@@ -45,7 +45,10 @@ const StyledTextChat: React.FC<TextChatProps> = ({ className }) => {
 				value: message,
 			},
 		]);
-		dataChannelManager.broadcast(message);
+		dataChannelManager.broadcast({
+			type: "ChatMessage",
+			value: message,
+		});
 	};
 
 	useEffect(() => {

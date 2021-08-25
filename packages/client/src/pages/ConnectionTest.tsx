@@ -22,7 +22,10 @@ const ConnectionTest: React.FC = () => {
   }
 
   const handleClickSend = () => {
-    dataChannelManager.broadcast(message);
+    dataChannelManager.broadcast({
+			type: "ChatMessage",
+			value: message
+		});
   }
 
 	return (

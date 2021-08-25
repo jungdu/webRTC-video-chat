@@ -11,6 +11,7 @@ import {
 	chatMessagesState,
 	connectedSocketIdState,
 } from "recoilStates/chatStates";
+import { DataChannelMessage } from "types";
 
 // TODO 여기저기 메니저를 참조해서 번잡한데 구조적인 수정이 필요함
 export default function useRTCConnection() {
@@ -25,15 +26,20 @@ export default function useRTCConnection() {
 			rtcConnectionManager.addSocketHandler(currentSocket);
 
 			dataChannelManager.setHandlers({
-				onMessage: function (event: MessageEvent<any>, socketId: string) {
-					setChatMessage((messages) => [
-						...messages,
-						{
-							userId: socketId,
-							value: event.data,
-							time: new Date().getTime(),
-						},
-					]);
+				onMessage: function (message: DataChannelMessage, socketId: string) {
+					switch(message.type){
+						case "ChatMessage":
+						setChatMessage((messages) => [
+							...messages,
+							{
+								userId: socketId,
+								value: message.value,
+								time: new Date().getTime(),
+							},
+						]);
+						break;
+					}
+					
 				},
 				onClose: function (socketId) {
 					setChatMediaStreams(function(chatMediaStreams){

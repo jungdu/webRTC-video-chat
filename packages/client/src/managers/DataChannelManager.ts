@@ -1,8 +1,9 @@
+import { DataChannelMessage } from "types";
 import RTCConnectionStore from "./RTCConnectionStore";
 
 interface DataChannelHandlers{
   onOpen?: (socketId: string) => void;
-  onMessage?: (event: MessageEvent, socketId: string) => void;
+  onMessage?: (dataChannelMessage: DataChannelMessage, socketId: string) => void;
   onClose?: (socketId: string) => void;
 }
 export default class DataChannelManager {
@@ -22,7 +23,7 @@ export default class DataChannelManager {
   
     dataChannel.addEventListener('message', (event) => {
       const {onMessage} = this.handlers;
-      if(onMessage) onMessage(event, socketId);
+      if(onMessage) onMessage(JSON.parse(event.data), socketId);
     })
   
     dataChannel.addEventListener('close', () => {
@@ -48,10 +49,10 @@ export default class DataChannelManager {
     })
   }
 
-  broadcast(data: string){
+  broadcast(dataChannelMessage: DataChannelMessage){
     this.connectionStore.getDataChannels().forEach((dataChannel) => {
       if(dataChannel.readyState === "open"){
-        dataChannel.send(data);
+        dataChannel.send(JSON.stringify(dataChannelMessage));
       }
     })
   }
