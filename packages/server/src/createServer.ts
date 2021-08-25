@@ -1,6 +1,7 @@
 import socketIo from "socket.io"
 import express, {Express} from "express";
 import http from "http";
+import path from "path"
 
 const publicFolderPath = "public";
 
@@ -28,6 +29,12 @@ export function startExpressServer(port: number|string){
 
 export function useStaticServer(expressServer:Express){
   expressServer.use(express.static(publicFolderPath))
+}
+
+export function useReactPath(expressServer: Express){
+  expressServer.use('*', (req, res) => {
+    res.sendFile(path.resolve(`${publicFolderPath}/index.html`));
+  })
 }
 
 export function createSocketServer(httpServer: http.Server){
