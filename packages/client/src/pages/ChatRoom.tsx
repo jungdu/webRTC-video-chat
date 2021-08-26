@@ -3,11 +3,15 @@ import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 import { chatRoomManager, rtcConnectionManager, socketManager } from "managers";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { chatMediaStreamsState, connectedSocketIdState } from "recoilStates/chatStates";
+import {
+	chatUsersIdListState,
+	connectedSocketIdState,
+} from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 import MediaSetting from "components/MediaSetting";
+import { useSetChatUserMediaStream } from "hooks/useRecoilCallbacks";
 
 const bottomHeightPx = 50;
 
@@ -57,39 +61,41 @@ const ChatRoom: React.FC = () => {
 		userMediaStream: null,
 		userName: null,
 	});
-	const setChatMediaStream = useSetRecoilState(chatMediaStreamsState);
-
+	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
+	const setChatUserMediaStream = useSetChatUserMediaStream();
+	
 	const { chatRoomId } = useParams<{
 		chatRoomId?: string;
 	}>();
 
 	const joinRoom = async () => {
-		if (chatRoomId) {
-			const currentSocket = socketManager.getCurrentSocket();
-			const joinedRoom = await chatRoomManager.joinRoom(
-				socketManager.getCurrentSocket(),
-				chatRoomId
-			);
-
-			const otherUsersSocketId = joinedRoom.userSocketIds.filter(userSocketId => userSocketId !== connectedSocketId);
-			
-			setChatMediaStream([
-				{
-					userId: "me",
-					mediaStream: finishedUserSetting.userMediaStream ? [finishedUserSetting.userMediaStream]: null,
-				},
-				...otherUsersSocketId.map(socketId => {
-					return {
-						userId: socketId,
-						mediaStream: null,
-					}
-				})
-			]);
-
-			otherUsersSocketId.forEach((socketId) => {
-				rtcConnectionManager.connectPeer(currentSocket, socketId);
-			});
+		if (!chatRoomId) {
+			throw new Error("No chatroom id");
 		}
+
+		if (!connectedSocketId) {
+			throw new Error("No connectedSocketId");
+		}
+
+		const currentSocket = socketManager.getCurrentSocket();
+		const joinedRoom = await chatRoomManager.joinRoom(
+			socketManager.getCurrentSocket(),
+			chatRoomId
+		);
+		setChatUsersIdList(joinedRoom.userSocketIds);
+		setChatUserMediaStream(
+			connectedSocketId,
+			finishedUserSetting.userMediaStream
+				? [finishedUserSetting.userMediaStream]
+				: null
+		);
+		const otherUsersSocketId = joinedRoom.userSocketIds.filter(
+			(userSocketId) => userSocketId !== connectedSocketId
+		);
+
+		otherUsersSocketId.forEach((socketId) => {
+			rtcConnectionManager.connectPeer(currentSocket, socketId);
+		});
 	};
 
 	const leaveRoom = () => {
@@ -108,26 +114,28 @@ const ChatRoom: React.FC = () => {
 	}, [connectedSocketId, finishedUserSetting]);
 
 	return finishedUserSetting.finished ? (
-    <Self>
-      <Content>
-        <LeftPanel>
-          <VideoList />
-        </LeftPanel>
-        <RightPanel>
-          <TextChat />
-        </RightPanel>
-      </Content>
-      <BottomPanel></BottomPanel>
-    </Self>
-  ) : (
-    <MediaSetting onFinishMediaSetting={(mediaStream, userName) => {
-			setFinishedUserSetting({
-				finished: true,
-				userMediaStream: mediaStream,
-				userName,
-			});
-		}}/>
-  );
+		<Self>
+			<Content>
+				<LeftPanel>
+					<VideoList />
+				</LeftPanel>
+				<RightPanel>
+					<TextChat />
+				</RightPanel>
+			</Content>
+			<BottomPanel></BottomPanel>
+		</Self>
+	) : (
+		<MediaSetting
+			onFinishMediaSetting={(mediaStream, userName) => {
+				setFinishedUserSetting({
+					finished: true,
+					userMediaStream: mediaStream,
+					userName,
+				});
+			}}
+		/>
+	);
 };
 
 export default ChatRoom;

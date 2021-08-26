@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
-import { chatMediaStreamsState } from "recoilStates/chatStates";
+import { chatUsersIdListState } from "recoilStates/chatStates";
 import VideoItem from "./VideoItem";
 
 interface VideoListProps {
@@ -24,15 +24,10 @@ const VideoItemContainer = styled.div`
 `;
 
 const StyledVideoList: React.FC<VideoListProps> = ({ className }) => {
-	const chatMediaStreams = useRecoilValue(chatMediaStreamsState);
-  const mediaStreamsToRender = useMemo(() => {
-    return chatMediaStreams.slice(0, MAX_MEDIA_STREAM_COUNT);
-  }, [chatMediaStreams])
-
-  console.log("mediaStreamsToRender :", mediaStreamsToRender)
+	const chatUsersIdList = useRecoilValue(chatUsersIdListState);
 
   const getColumnCount = () => {
-    const streamCount = mediaStreamsToRender.length;
+    const streamCount = chatUsersIdList.length;
     if(streamCount <= 1){
       return 1;
     }
@@ -47,9 +42,9 @@ const StyledVideoList: React.FC<VideoListProps> = ({ className }) => {
 
 	return (
 		<Self className={className} columnCount={getColumnCount()}>
-			{mediaStreamsToRender.map(({ userId, mediaStream }) => (
+			{chatUsersIdList.map(userId => (
 				<VideoItemContainer key={userId}>
-					<VideoItem userId={userId} stream={mediaStream && mediaStream[0]} />
+					<VideoItem userId={userId} />
 				</VideoItemContainer>
 			))}
 		</Self>

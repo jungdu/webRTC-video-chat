@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, atomFamily, selector } from "recoil";
 import { Room } from "@videochat/common";
 import { MessageInfo } from "types";
 
@@ -12,12 +12,16 @@ export const chatMessagesState = atom<MessageInfo[]>({
   default: []
 })
 
-export const chatMediaStreamsState = atom<{
-  userId: string;
-  mediaStream: MediaStream[] | null;
-}[]>({
-  key: "chatMediaStreamsState",
+export const chatUsersIdListState = atom<string[]>({
+  key: "chatUsersIdListState",
   default: [],
+})
+
+export const chatUserAtomFamily = atomFamily<{mediaStream: null | MediaStream[]}, {}>({
+  key: "chatUserAtomFamily",
+  default: {
+    mediaStream: null
+  }
 })
 
 export const chatRoomsState = atom<Room[]>({

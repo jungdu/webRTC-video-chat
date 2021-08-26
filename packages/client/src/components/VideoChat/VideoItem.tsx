@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import StyledRelativeHeightDiv from "components/common/StyledRelativeHeightDiv";
+import { useRecoilValue } from "recoil";
+import { chatUserAtomFamily } from "recoilStates/chatStates";
 
 interface VideoItemProps {
-  stream: MediaStream | null,
   userId: string,
 }
 
@@ -29,7 +30,8 @@ const StyledUserInfo = styled.div`
   padding: 10px;
 `
 
-const VideoItem: React.FC<VideoItemProps> = ({ stream, userId }) => {
+const VideoItem: React.FC<VideoItemProps> = ({ userId }) => {
+  const {mediaStream} = useRecoilValue(chatUserAtomFamily(userId))
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleLoadedMetadata = () => {
@@ -37,10 +39,10 @@ const VideoItem: React.FC<VideoItemProps> = ({ stream, userId }) => {
   }
   
   useEffect(() => {
-    if(stream && videoRef.current){
-      videoRef.current.srcObject = stream;
+    if(mediaStream && videoRef.current){
+      videoRef.current.srcObject = mediaStream[0];
     }
-  }, [stream, videoRef.current])
+  }, [mediaStream, videoRef.current])
 
   return <Self heightPercent={70}>
     <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>

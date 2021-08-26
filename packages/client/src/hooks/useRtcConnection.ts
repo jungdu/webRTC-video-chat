@@ -7,18 +7,22 @@ import {
 import { useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
-	chatMediaStreamsState,
 	chatMessagesState,
+	chatUsersIdListState,
 	connectedSocketIdState,
 } from "recoilStates/chatStates";
 import { DataChannelMessage } from "types";
+import { pushUniqueItem } from "utils";
+import { useResetChatUser, useSetChatUserMediaStream } from "./useRecoilCallbacks";
 
 // TODO 여기저기 메니저를 참조해서 번잡한데 구조적인 수정이 필요함
 export default function useRTCConnection() {
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
-	const setChatMessage = useSetRecoilState(chatMessagesState);
-	const setChatMediaStreams = useSetRecoilState(chatMediaStreamsState);
 	const setChatMessages = useSetRecoilState(chatMessagesState);
+	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
+
+	const resetChatUser = useResetChatUser();
+	const setChatUserMediaStream = useSetChatUserMediaStream();
 
 	useEffect(() => {
 		if (connectedSocketId) {
@@ -26,10 +30,13 @@ export default function useRTCConnection() {
 			rtcConnectionManager.addSocketHandler(currentSocket);
 
 			dataChannelManager.setHandlers({
+				onOpen: function(socketId){
+					setChatUsersIdList((chatUsersIdList) => pushUniqueItem(chatUsersIdList, socketId))
+				},
 				onMessage: function (message: DataChannelMessage, socketId: string) {
 					switch(message.type){
 						case "ChatMessage":
-						setChatMessage((messages) => [
+						setChatMessages((messages) => [
 							...messages,
 							{
 								userId: socketId,
@@ -39,41 +46,23 @@ export default function useRTCConnection() {
 						]);
 						break;
 					}
-					
 				},
 				onClose: function (socketId) {
-					setChatMediaStreams(function(chatMediaStreams){
-						return chatMediaStreams.filter(chatMediaStream => chatMediaStream.userId !== socketId)
-					})		
+					setChatUsersIdList((idList) => idList.filter(id => id !== socketId));
+					resetChatUser(socketId)
 				}
 			});
 
 			mediaStreamManager.setHandlers({
 				onNewTrack: function (rtcTrackEvent, socketId) {
-					setChatMediaStreams(function (chatMediaStreams) {
-						const newStreams = [...rtcTrackEvent.streams];
-						const newChatMediaStreams = [...chatMediaStreams];
-						const idx = chatMediaStreams.findIndex(chatMediaStream => chatMediaStream.userId === socketId);
-						if(idx === -1 ){
-							newChatMediaStreams.push({
-								userId: socketId,
-								mediaStream: newStreams
-							})
-						}else{
-							newChatMediaStreams[idx] = {
-								...newChatMediaStreams[idx],
-								mediaStream: newStreams
-							}
-						}
-						return newChatMediaStreams;
-					});
+					const streams = [...rtcTrackEvent.streams]
+					setChatUserMediaStream(socketId, streams);
 				},
 			});
 
 			return () => {
 				rtcConnectionManager.deleteSocketHandler(currentSocket);
 				rtcConnectionManager.closeConnections();
-				setChatMediaStreams([]);
 				setChatMessages([])
 			};
 		}
