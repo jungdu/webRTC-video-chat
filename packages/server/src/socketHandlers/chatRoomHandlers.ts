@@ -20,7 +20,6 @@ export function addChatRoomHandlers(socket: TypedServerSocket, socketServer: Typ
   socket.on("joinRoom", (msg, cb) => {
     try{
       const room = chatRoomManager.joinRoom(msg.roomId, socket.id);
-      console.log("room :", room)
       if(cb){
         cb(room);
       }

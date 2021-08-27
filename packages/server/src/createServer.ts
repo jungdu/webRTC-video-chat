@@ -2,6 +2,7 @@ import socketIo from "socket.io"
 import express, {Express} from "express";
 import http from "http";
 import path from "path"
+import { logger } from "./utils/logger";
 
 const publicFolderPath = "public";
 
@@ -18,7 +19,7 @@ export function startExpressServer(port: number|string){
     });
     
     const server = app.listen(port, () => {
-      console.log("Listening on ", port);
+      logger.log("Listening on " + port);
       resolve({
         httpServer: server,
         expressServer: app
@@ -42,7 +43,6 @@ export function createSocketServer(httpServer: http.Server){
     origin: "http://localhost:3000"
   }} : {};
 
-  console.log("options :", options)
   const ioServer = new socketIo.Server(httpServer, options);
   return ioServer;
 }

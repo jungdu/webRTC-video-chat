@@ -1,20 +1,21 @@
 import {Socket} from "socket.io"
+import { logger } from "../utils/logger";
 
 export function addRTCConnectionHandlers(socket: Socket){
-  console.log("new socket connected");
-  
+  logger.devLog("new socket connected");
+
   socket.on('offer', arg => {
-    console.log("offer:::arg :", arg)
+    logger.devLog("offer from : " + socket.id)
     socket.to(arg.answerSocketId).emit('offer', arg);
   })
 
   socket.on('answer', arg => {
-    console.log("answer:::arg :", arg)
+    logger.devLog("answer  from : " + socket.id)
     socket.to(arg.offerSocketId).emit('answer', arg);
   })
 
   socket.on('candidate', arg => {
-    console.log("candidateFromOffer:::arg", arg);
+    logger.devLog("candidateFromOffer from : " + socket.id);
     socket.to(arg.destSocketId).emit('candidate', arg)
   })
 }
