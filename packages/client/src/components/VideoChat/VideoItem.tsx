@@ -31,7 +31,7 @@ const StyledUserInfo = styled.div`
 `
 
 const VideoItem: React.FC<VideoItemProps> = ({ userId }) => {
-  const {mediaStream} = useRecoilValue(chatUserAtomFamily(userId))
+  const {mediaStream, userName} = useRecoilValue(chatUserAtomFamily(userId))
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleLoadedMetadata = () => {
@@ -47,7 +47,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ userId }) => {
   return <Self heightPercent={70}>
     <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
     <StyledUserInfo>
-      {userId}
+      { userName || "Unknown" }
     </StyledUserInfo>
   </Self>;
 };

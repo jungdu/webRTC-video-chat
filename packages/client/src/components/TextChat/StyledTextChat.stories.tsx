@@ -17,62 +17,62 @@ export default {
     set(chatMessagesState, [
       {
         time: 1629397770000,
-        userId: "테스트1",
+        userName: "테스트1",
         value: "안녕하세요"
       },
       {
         time: 1629497780000,
-        userId: "테스트2",
+        userName: "테스트2",
         value: "안녕하세요!!!"
       },
       {
         time: 1629597790000,
-        userId: "방장",
+        userName: "방장",
         value: "하이"
       },
       {
         time: 1629697770000,
-        userId: "테스트1",
+        userName: "테스트1",
         value: "안녕하세요"
       },
       {
         time: 1629797780000,
-        userId: "테스트2",
+        userName: "테스트2",
         value: "안녕하세요!!!"
       },
       {
         time: 1629897790000,
-        userId: "방장",
+        userName: "방장",
         value: "하이"
       },
       {
         time: 1629997770000,
-        userId: "테스트1",
+        userName: "테스트1",
         value: "안녕하세요"
       },
       {
         time: 16309397780000,
-        userId: "테스트2",
+        userName: "테스트2",
         value: "안녕하세요!!!"
       },
       {
         time: 1632397790000,
-        userId: "방장",
+        userName: "방장",
         value: "하이"
       },
       {
         time: 1634397770000,
-        userId: "테스트1",
+        userName: "테스트1",
         value: "안녕하세요"
       },
       {
         time: 1635397780000,
-        userId: "테스트2",
+        userName: "테스트2",
         value: "안녕하세요!!!"
       },
       {
         time: 1635307780000,
-        userId: "테스트2",
+        userName: "테스트2",
         value: "안녕하세요!!!"
       }
     ])

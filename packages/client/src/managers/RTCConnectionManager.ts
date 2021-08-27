@@ -97,23 +97,26 @@ export default class RTCConnectionManager{
     this.connectionStore.closeConnections();
   }
 
-  async connectPeer(socket: TypedClientSocket, answerSocketId: string){
-    if(!socket.id){
-      throw new Error("connectRTCPeer:::No socket id");
-    }
-
-    const rtcPeerConnection = this.createConnection(RTCConnectionType.OFFER, answerSocketId);
-    this.addIceCandidateHandler(rtcPeerConnection, answerSocketId, RTCConnectionType.OFFER, socket);
-    this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection, answerSocketId);
-    this.dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId);
+  connectPeer(socket: TypedClientSocket, answerSocketId: string){
+    return new Promise<void>(resolve => {
+      if(!socket.id){
+        throw new Error("connectRTCPeer:::No socket id");
+      }
   
-    const offer = await rtcPeerConnection.createOffer();
-    rtcPeerConnection.setLocalDescription(offer);
+      const rtcPeerConnection = this.createConnection(RTCConnectionType.OFFER, answerSocketId);
+      this.addIceCandidateHandler(rtcPeerConnection, answerSocketId, RTCConnectionType.OFFER, socket);
+      this.mediaStreamManager.addRTCMediaStreamHandler(rtcPeerConnection, answerSocketId);
+      this.dataChannelManager.createDataChannel(rtcPeerConnection, answerSocketId, resolve);
     
-    socket.emit('offer', {
-      answerSocketId,
-      offer,
-      offerSocketId: socket.id,
-    });
+      rtcPeerConnection.createOffer().then(offer => {
+        rtcPeerConnection.setLocalDescription(offer);
+      
+        socket.emit('offer', {
+          answerSocketId,
+          offer,
+          offerSocketId: socket.id,
+        });
+      });
+    })
   }
 }

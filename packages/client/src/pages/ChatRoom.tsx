@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
-import { chatRoomManager, rtcConnectionManager, socketManager } from "managers";
+import { chatRoomManager, rtcConnectionManager, socketManager, currentUserManager } from "managers";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
 	chatUsersIdListState,
@@ -11,7 +11,7 @@ import StyledTextChat from "components/TextChat/StyledTextChat";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 import MediaSetting from "components/MediaSetting";
-import { useSetChatUserMediaStream } from "hooks/useRecoilCallbacks";
+import { useSetChatUser } from "hooks/useRecoilCallbacks";
 
 const bottomHeightPx = 50;
 
@@ -52,17 +52,9 @@ const VideoList = styled(StyledVideoList)`
 const ChatRoom: React.FC = () => {
 	useRTCConnection();
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
-	const [finishedUserSetting, setFinishedUserSetting] = useState<{
-		finished: boolean;
-		userMediaStream: MediaStream | null;
-		userName: string | null;
-	}>({
-		finished: false,
-		userMediaStream: null,
-		userName: null,
-	});
+	const [finishedSetting, setFinishedSetting] = useState<boolean>(false);
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
-	const setChatUserMediaStream = useSetChatUserMediaStream();
+	const setChatUser = useSetChatUser();
 	
 	const { chatRoomId } = useParams<{
 		chatRoomId?: string;
@@ -83,12 +75,16 @@ const ChatRoom: React.FC = () => {
 			chatRoomId
 		);
 		setChatUsersIdList(joinedRoom.userSocketIds);
-		setChatUserMediaStream(
+
+		const userMediaStream = currentUserManager.getMediaStream();
+		setChatUser(
 			connectedSocketId,
-			finishedUserSetting.userMediaStream
-				? [finishedUserSetting.userMediaStream]
-				: null
+			{
+				mediaStream: userMediaStream ? [userMediaStream] : null,
+				userName: currentUserManager.getUserName(),
+			}
 		);
+		
 		const otherUsersSocketId = joinedRoom.userSocketIds.filter(
 			(userSocketId) => userSocketId !== connectedSocketId
 		);
@@ -102,18 +98,19 @@ const ChatRoom: React.FC = () => {
 		if (chatRoomId) {
 			chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId);
 		}
+		currentUserManager.clear();
 	};
 
 	useEffect(() => {
-		if (connectedSocketId && finishedUserSetting.finished) {
+		if (connectedSocketId && finishedSetting) {
 			joinRoom();
 			return () => {
 				leaveRoom();
 			};
 		}
-	}, [connectedSocketId, finishedUserSetting]);
+	}, [connectedSocketId, finishedSetting]);
 
-	return finishedUserSetting.finished ? (
+	return finishedSetting ? (
 		<Self>
 			<Content>
 				<LeftPanel>
@@ -128,11 +125,11 @@ const ChatRoom: React.FC = () => {
 	) : (
 		<MediaSetting
 			onFinishMediaSetting={(mediaStream, userName) => {
-				setFinishedUserSetting({
-					finished: true,
-					userMediaStream: mediaStream,
+				currentUserManager.initialize({
+					mediaStream,
 					userName,
-				});
+				})
+				setFinishedSetting(true);
 			}}
 		/>
 	);

@@ -34,13 +34,13 @@ function formatTime(time: number){
 }
 
 const MessageItem: React.FC<MessageProps> = ({
-  userId,
+  userName,
   value,
   time,
 }) => {
   return <Self>
     <div>
-      <StyledSender>{userId}</StyledSender>
+      <StyledSender>{userName}</StyledSender>
       <StyledTime>{formatTime(time)}</StyledTime>
     </div>
     <StyledMessageValue>

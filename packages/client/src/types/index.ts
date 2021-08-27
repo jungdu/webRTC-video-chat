@@ -1,5 +1,5 @@
 export interface MessageInfo {
-  userId: string;
+  userName: string;
   value: string;
   time: number;
 }
@@ -11,6 +11,7 @@ interface SetUserName {
 
 interface ChatMessage {
   type: "ChatMessage";
+  userName: string;
   value: string;
 }
 

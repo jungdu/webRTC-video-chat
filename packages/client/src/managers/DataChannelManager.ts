@@ -2,7 +2,7 @@ import { DataChannelMessage } from "types";
 import RTCConnectionStore from "./RTCConnectionStore";
 
 interface DataChannelHandlers{
-  onOpen?: (socketId: string) => void;
+  onOpen?: (socketId: string, dataChannel: RTCDataChannel) => void;
   onMessage?: (dataChannelMessage: DataChannelMessage, socketId: string) => void;
   onClose?: (socketId: string) => void;
 }
@@ -14,11 +14,16 @@ export default class DataChannelManager {
     this.connectionStore = connectionStore;
   }
   
-  private addDataChannelHandlers(dataChannel: RTCDataChannel, socketId: string){
+  private addDataChannelHandlers(dataChannel: RTCDataChannel, socketId: string, onSuccessConnecting?: () => void){
     dataChannel.addEventListener('open', () => {
       console.log("dataChannelOpened");
-      const {onOpen} = this.handlers;
-      if(onOpen) onOpen(socketId);
+      if(onSuccessConnecting){
+        onSuccessConnecting();
+      }
+
+      if(this.handlers.onOpen) {
+        this.handlers.onOpen(socketId, dataChannel);
+      };
     })
   
     dataChannel.addEventListener('message', (event) => {
@@ -37,31 +42,32 @@ export default class DataChannelManager {
     })
   }
 
-  private registerDataChannel(dataChannel: RTCDataChannel, socketId:string){
-    this.connectionStore.addDataChannel(socketId, dataChannel)
-    this.addDataChannelHandlers(dataChannel, socketId);
-  }
-
   addRtcDataChannelHandler(rtcConnection: RTCPeerConnection, socketId: string){
     rtcConnection.addEventListener('datachannel', (event) => {
       const dataChannel = event.channel;
-      this.registerDataChannel(dataChannel, socketId);
+      this.connectionStore.addDataChannel(socketId, dataChannel);
+      this.addDataChannelHandlers(dataChannel, socketId);
     })
   }
 
   broadcast(dataChannelMessage: DataChannelMessage){
     this.connectionStore.getDataChannels().forEach((dataChannel) => {
-      if(dataChannel.readyState === "open"){
-        dataChannel.send(JSON.stringify(dataChannelMessage));
-      }
+      this.sendMessage(dataChannel, dataChannelMessage);
     })
   }
 
-  createDataChannel(peerConnection: RTCPeerConnection, socketId:string){
+  sendMessage(dataChannel: RTCDataChannel, dataChannelMessage: DataChannelMessage){
+    if(dataChannel.readyState === "open"){
+      dataChannel.send(JSON.stringify(dataChannelMessage));
+    }   
+  }
+
+  createDataChannel(peerConnection: RTCPeerConnection, socketId:string, onSuccessConnecting: () => void){
     this.addRtcDataChannelHandler(peerConnection, socketId);
     const dataChannel = peerConnection.createDataChannel('basicDataChannel');
     dataChannel.binaryType = "arraybuffer";
-    this.registerDataChannel(dataChannel, socketId);
+    this.connectionStore.addDataChannel(socketId, dataChannel);
+    this.addDataChannelHandlers(dataChannel, socketId, onSuccessConnecting);
   }
 
   setHandlers(handlers: DataChannelHandlers){

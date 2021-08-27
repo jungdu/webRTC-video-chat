@@ -20,9 +20,11 @@ const DefaultComp:React.FC = () => {
   const setChatUser = useRecoilCallback<[{
     userId: string;
     mediaStream: MediaStream[];
-  }], void>(({set}) => ({mediaStream, userId}) => {
+    userName: string;
+  }], void>(({set}) => ({mediaStream, userId, userName}) => {
     set(chatUserAtomFamily(userId), {
-      mediaStream: mediaStream
+      mediaStream,
+      userName,
     })
   })
 
@@ -31,10 +33,11 @@ const DefaultComp:React.FC = () => {
       console.log("mediaStream :", mediaStream)
       setChatUser({
         userId: "abc",
-        mediaStream: [mediaStream]
+        mediaStream: [mediaStream],
+        userName: "테스트 유저 네임"
       });
     }).catch((e) => {
-      console.error("error :", e)
+      console.log("e :", e)
     })
   }, [])
 

@@ -1,4 +1,5 @@
 import {
+	currentUserManager,
 	dataChannelManager,
 	mediaStreamManager,
 	rtcConnectionManager,
@@ -13,7 +14,7 @@ import {
 } from "recoilStates/chatStates";
 import { DataChannelMessage } from "types";
 import { pushUniqueItem } from "utils";
-import { useResetChatUser, useSetChatUserMediaStream } from "./useRecoilCallbacks";
+import { useResetChatUser, useUpdateChatUser } from "./useRecoilCallbacks";
 
 // TODO 여기저기 메니저를 참조해서 번잡한데 구조적인 수정이 필요함
 export default function useRTCConnection() {
@@ -22,7 +23,7 @@ export default function useRTCConnection() {
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
 
 	const resetChatUser = useResetChatUser();
-	const setChatUserMediaStream = useSetChatUserMediaStream();
+	const updateChatUser = useUpdateChatUser();
 
 	useEffect(() => {
 		if (connectedSocketId) {
@@ -30,8 +31,12 @@ export default function useRTCConnection() {
 			rtcConnectionManager.addSocketHandler(currentSocket);
 
 			dataChannelManager.setHandlers({
-				onOpen: function(socketId){
+				onOpen: function(socketId, dataChannel){
 					setChatUsersIdList((chatUsersIdList) => pushUniqueItem(chatUsersIdList, socketId))
+					dataChannelManager.sendMessage(dataChannel, {
+						type: "SetUserName",
+						value: currentUserManager.getUserName(),
+					})
 				},
 				onMessage: function (message: DataChannelMessage, socketId: string) {
 					switch(message.type){
@@ -39,12 +44,19 @@ export default function useRTCConnection() {
 						setChatMessages((messages) => [
 							...messages,
 							{
-								userId: socketId,
+								userName: message.userName,
 								value: message.value,
 								time: new Date().getTime(),
 							},
 						]);
 						break;
+						case "SetUserName":
+							updateChatUser(socketId, {
+								userName: message.value
+							})
+						break;
+						default:
+							throw new Error("Undefined type of message");
 					}
 				},
 				onClose: function (socketId) {
@@ -56,7 +68,9 @@ export default function useRTCConnection() {
 			mediaStreamManager.setHandlers({
 				onNewTrack: function (rtcTrackEvent, socketId) {
 					const streams = [...rtcTrackEvent.streams]
-					setChatUserMediaStream(socketId, streams);
+					updateChatUser(socketId, {
+						mediaStream:streams,
+					});
 				},
 			});
 

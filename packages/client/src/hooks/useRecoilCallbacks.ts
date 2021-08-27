@@ -1,14 +1,24 @@
 import { useRecoilCallback } from "recoil";
-import { chatUserAtomFamily } from "recoilStates/chatStates";
+import { ChatUser, chatUserAtomFamily } from "recoilStates/chatStates";
 
-export function useSetChatUserMediaStream() {
+export function useSetChatUser() {
 	return useRecoilCallback<
-		[userId: string, mediaStream: MediaStream[] | null],
+		[userId: string, chatUserProperties: ChatUser],
 		void
-	>(({ set }) => (userId, mediaStream) => {
-		set(chatUserAtomFamily(userId), {
-			mediaStream,
-		});
+	>(({ set }) => (userId, chatUserProperties) => {
+		set(chatUserAtomFamily(userId), chatUserProperties);
+	});
+}
+
+export function useUpdateChatUser() {
+	return useRecoilCallback<
+		[userId: string, chatUserProperties: Partial<ChatUser>],
+		void
+	>(({ set }) => (userId, chatUserProperties) => {
+		set(chatUserAtomFamily(userId), (chatUser) => ({
+			...chatUser,
+			...chatUserProperties
+		}));
 	});
 }
 

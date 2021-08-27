@@ -19,7 +19,7 @@ const Template: ComponentStory<typeof MessageItem> = (args) => <MessageItem {...
 
 export const Default = Template.bind({});
 Default.args = {
-  userId: "someone",
+  userName: "someone",
   time: new Date().getTime(),
   value: "blah blah",
 }

@@ -2,6 +2,11 @@ import { atom, atomFamily, selector } from "recoil";
 import { Room } from "@videochat/common";
 import { MessageInfo } from "types";
 
+export interface ChatUser {
+  mediaStream: null | MediaStream[];
+  userName: null | string;
+}
+
 export const connectedSocketIdState = atom<string | null>({
   key: "connectedSocketId",
   default: null,
@@ -17,10 +22,11 @@ export const chatUsersIdListState = atom<string[]>({
   default: [],
 })
 
-export const chatUserAtomFamily = atomFamily<{mediaStream: null | MediaStream[]}, {}>({
+export const chatUserAtomFamily = atomFamily<ChatUser, {}>({
   key: "chatUserAtomFamily",
   default: {
-    mediaStream: null
+    mediaStream: null,
+    userName: null
   }
 })
 

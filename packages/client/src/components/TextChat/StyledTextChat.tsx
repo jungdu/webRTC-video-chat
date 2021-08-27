@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { useRecoilState } from "recoil";
 import { chatMessagesState } from "recoilStates/chatStates";
 import MessageItem from "./MessageItem";
-import { dataChannelManager } from "managers";
+import { currentUserManager, dataChannelManager } from "managers";
 import TextInput from "components/common/TextInput";
 
 interface TextChatProps {
@@ -37,17 +37,19 @@ const StyledTextChat: React.FC<TextChatProps> = ({ className }) => {
 	const messageListRef = useRef<HTMLDivElement>(null);
 
 	const handleSendMessage = (message: string) => {
+		const currentUserName = currentUserManager.getUserName();
 		setChatMessages((chatMessages) => [
 			...chatMessages,
 			{
       time: new Date().getTime(),
-				userId: "Me",
+				userName: currentUserName,
 				value: message,
 			},
 		]);
 		dataChannelManager.broadcast({
 			type: "ChatMessage",
 			value: message,
+			userName: currentUserName,
 		});
 	};
 
@@ -62,8 +64,8 @@ const StyledTextChat: React.FC<TextChatProps> = ({ className }) => {
 		<Self className={className}>
 			<PanelTop>메시지</PanelTop>
 			<MessageList ref={messageListRef}>
-				{chatMessages.map(({ time, userId, value }) => (
-					<MessageItem userId={userId} time={time} value={value} />
+				{chatMessages.map(({ time, userName, value }) => (
+					<MessageItem userName={userName} time={time} value={value} />
 				))}
 			</MessageList>
 			<TextInput onSubmit={handleSendMessage} submitButtonText="보내기"/>
