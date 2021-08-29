@@ -14,18 +14,21 @@ const Self = styled.div`
   justify-content: stretch;
   align-items: stretch;
   flex-wrap: wrap;
+
+  label: VideoList;
 `;
 
 const VideoItemContainer = styled.div<{
   minHeight: string | null;
 }>`
     position: relative;
-    height: 100%;
     ${({minHeight}) => minHeight ?`
     min-width: ${minHeight};
   ` : `
     display: none;
   `};
+
+  label: VideoItemContainer;
 `;
 
 const StyledVideoList: React.FC<VideoListProps> = ({ className }) => {

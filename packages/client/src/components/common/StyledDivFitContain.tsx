@@ -13,6 +13,8 @@ const Self = styled.div<{size: {
 }>`
   width: ${({size}) => size.width}px;
   height: ${({size}) => size.height}px;
+
+  label: DivFitContain;
 `;
 
 function calculateContainSize(parentRect: {
