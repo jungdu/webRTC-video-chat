@@ -1,49 +1,62 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
 import { chatUsersIdListState } from "recoilStates/chatStates";
 import VideoItem from "./VideoItem";
+import {debounce} from "lodash"
 
 interface VideoListProps {
 	className?: string;
 }
 
-const MAX_MEDIA_STREAM_COUNT = 9;
-
-const Self = styled.div<{
-  columnCount: number;
-}>`
-	display: grid;
-  grid-template-columns: ${({columnCount}) => `repeat(${columnCount}, 1fr)`};
+const Self = styled.div`
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+  flex-wrap: wrap;
 `;
 
-const VideoItemContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;;
+const VideoItemContainer = styled.div<{
+  minHeight: string | null;
+}>`
+    position: relative;
+    height: 100%;
+    ${({minHeight}) => minHeight ?`
+    min-width: ${minHeight};
+  ` : `
+    display: none;
+  `};
 `;
 
 const StyledVideoList: React.FC<VideoListProps> = ({ className }) => {
 	const chatUsersIdList = useRecoilValue(chatUsersIdListState);
+  const selfRef = useRef<HTMLDivElement>(null);
+  const [itemMinHeight, setItemMinHeight] = useState<null|string>(null);
 
-  const getColumnCount = () => {
-    const streamCount = chatUsersIdList.length;
-    if(streamCount <= 1){
-      return 1;
+  useEffect(() => {
+    const selfCurrent = selfRef.current;
+
+    if(selfCurrent){
+      const userCountSqrt = Math.sqrt(chatUsersIdList.length);
+      const updateItemMinHeight = () => {
+        const ratio = selfCurrent.clientWidth / selfCurrent.clientHeight;
+        const columnCount = ratio < 1 ? Math.floor(userCountSqrt) : Math.ceil(userCountSqrt);
+        setItemMinHeight(`${100/columnCount}%`)
+      }
+      const handleResize = debounce(updateItemMinHeight, 500);
+
+      updateItemMinHeight();
+      window.addEventListener('resize', handleResize)
+      return () => {
+        window.removeEventListener('resize', handleResize)
+      }
     }
-    if(streamCount <= 4){
-      return 2;
-    }
-    if(streamCount <= 9){
-      return 3;
-    }
-    throw new Error("media stream count is grater than maximum of stream count");
-  }
+  }, [selfRef, chatUsersIdList])
 
 	return (
-		<Self className={className} columnCount={getColumnCount()}>
+		<Self className={className} ref={selfRef}>
 			{chatUsersIdList.map(userId => (
-				<VideoItemContainer key={userId}>
+				<VideoItemContainer key={userId} minHeight={itemMinHeight}>
 					<VideoItem userId={userId} />
 				</VideoItemContainer>
 			))}

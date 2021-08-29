@@ -1,17 +1,25 @@
 import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import StyledRelativeHeightDiv from "components/common/StyledRelativeHeightDiv";
 import { useRecoilValue } from "recoil";
 import { chatUserAtomFamily } from "recoilStates/chatStates";
+import StyledDivFitContain from "components/common/StyledDivFitContain";
 
 interface VideoItemProps {
   userId: string,
 }
 
-const Self = styled(StyledRelativeHeightDiv)`
+const DivFitContain = styled(StyledDivFitContain)`
+  position: relative;
+`
+
+const Self = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   background: #111;
   width: 100%;
-  margin: 5px;
+  height: 100%;
 `;
 
 const StyledVideo = styled.video`
@@ -31,6 +39,7 @@ const StyledUserInfo = styled.div`
 `
 
 const VideoItem: React.FC<VideoItemProps> = ({ userId }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const {mediaStream, userName} = useRecoilValue(chatUserAtomFamily(userId))
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -44,11 +53,13 @@ const VideoItem: React.FC<VideoItemProps> = ({ userId }) => {
     }
   }, [mediaStream, videoRef.current])
 
-  return <Self heightPercent={70}>
-    <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
-    <StyledUserInfo>
-      { userName || "Unknown" }
-    </StyledUserInfo>
+  return <Self ref={containerRef}>
+    <DivFitContain ratio={1.2} parentRef={containerRef}>
+      <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
+      <StyledUserInfo>
+        { userName || "Unknown" }
+      </StyledUserInfo>
+    </DivFitContain>
   </Self>;
 };
 

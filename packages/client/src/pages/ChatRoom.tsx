@@ -39,6 +39,7 @@ const RightPanel = styled.div`
 	background-color: #fff;
 	border-radius: 5px;
 	height: 100%;
+	flex-shrink: 0;
 `;
 
 const LeftPanel = styled.div`
