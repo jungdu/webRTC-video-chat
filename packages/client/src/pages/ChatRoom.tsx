@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 import { chatRoomManager, rtcConnectionManager, socketManager, currentUserManager } from "managers";
@@ -8,12 +8,13 @@ import {
 	connectedSocketIdState,
 } from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
+import StyledUserList from "components/UserList/StyledUserList";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 import MediaSetting from "components/MediaSetting";
 import { useSetChatUser } from "hooks/useRecoilCallbacks";
-
-const bottomHeightPx = 50;
+import { bottomHeightPx, RightPanelMode } from "./pageVariables";
+import BottomPanel from "components/BottomPanel/BottomPanel";
 
 const Self = styled.div`
 	height: 100vh;
@@ -26,13 +27,13 @@ const Content = styled.div`
 	height: calc(100% - ${bottomHeightPx}px);
 `;
 
-const BottomPanel = styled.div`
-	height: ${bottomHeightPx}px;
-`;
-
 const TextChat = styled(StyledTextChat)`
 	height: 100%;
 `;
+
+const UserList = styled(StyledUserList)`
+	height: 100%;
+`
 
 const RightPanel = styled.div`
 	width: 420px;
@@ -56,6 +57,17 @@ const ChatRoom: React.FC = () => {
 	const [finishedSetting, setFinishedSetting] = useState<boolean>(false);
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
 	const setChatUser = useSetChatUser();
+	const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("userList");
+	const rightPanelContent = useMemo(() => {
+		switch(rightPanelMode){
+			case "messageList":
+				return <TextChat />
+			case "userList": 
+				return <UserList />
+			default:
+				throw new Error("Invalid type of right panel mode");
+		}
+	}, [rightPanelMode])
 	
 	const { chatRoomId } = useParams<{
 		chatRoomId?: string;
@@ -118,10 +130,10 @@ const ChatRoom: React.FC = () => {
 					<VideoList />
 				</LeftPanel>
 				<RightPanel>
-					<TextChat />
+					{rightPanelContent}
 				</RightPanel>
 			</Content>
-			<BottomPanel></BottomPanel>
+			<BottomPanel onSetRightPanelMode={setRightPanelMode}/>
 		</Self>
 	) : (
 		<MediaSetting

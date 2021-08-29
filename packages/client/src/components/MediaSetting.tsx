@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import { mediaStreamManager } from "managers";
 import { primaryButtonStyle, textInputStyle } from "styles";
 import useInput from "hooks/useInput";
+import StyledRelativeHeightDiv from "./common/StyledRelativeHeightDiv";
 
 interface MediaSettingProps {
   onFinishMediaSetting: (mediaStream: MediaStream | null, userName: string) => void;
@@ -13,11 +14,15 @@ const Self = styled.div`
   width: 400px;
 `;
 
+const VideoContainer = styled(StyledRelativeHeightDiv)`
+  width: 100%;
+  border-radius: 3px;
+  background: #333;
+`
+
 const StyledVideo = styled.video`
   width: 100%;
-  height: 300px;
-  background: #333;
-  border-radius: 3px;
+  height: 100%;
 ` 
 
 const StyledButton = styled.button`
@@ -83,7 +88,9 @@ const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
   }, [userName]);
   
   return <Self>
-    <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
+    <VideoContainer heightPercent={70}>
+      <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
+    </VideoContainer>
     <StyledInput placeholder="USER NAME" onChange={handleChangeUserName} value={userName}/>
     <StyledButton onClick={handleSubmit}>입장</StyledButton>
     {errorMessage && <StyledErrorMessage>{errorMessage}</StyledErrorMessage>}

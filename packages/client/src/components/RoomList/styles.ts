@@ -5,3 +5,11 @@ export const roomItemStyle = css`
   display: block;
   padding: 15px 20px;
 `
+
+export const panelTopStyle = css`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 0 20px;
+	font-size: 20px;
+`

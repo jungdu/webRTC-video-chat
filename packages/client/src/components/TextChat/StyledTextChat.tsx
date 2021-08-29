@@ -5,6 +5,7 @@ import { chatMessagesState } from "recoilStates/chatStates";
 import MessageItem from "./MessageItem";
 import { currentUserManager, dataChannelManager } from "managers";
 import TextInput from "components/common/TextInput";
+import { panelTopStyle } from "components/RoomList/styles";
 
 interface TextChatProps {
 	className?: string;
@@ -25,11 +26,7 @@ const MessageList = styled.div`
 `;
 
 const PanelTop = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 20px 0 20px;
-	font-size: 20px;
+	${panelTopStyle}
 `;
 
 const StyledTextChat: React.FC<TextChatProps> = ({ className }) => {
