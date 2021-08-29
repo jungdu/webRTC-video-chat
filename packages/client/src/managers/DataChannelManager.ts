@@ -32,6 +32,7 @@ export default class DataChannelManager {
     })
   
     dataChannel.addEventListener('close', () => {
+      console.log("dataChannelClosed");
       this.connectionStore.deleteDataChannel(socketId);
       // dataChannel이 닫히면 close 이벤트가 바로 들어옴.
       // RTCConnectionStateChange 이벤트는 반응이 느려서 그 사이에 사용자가 같은 채팅방을 다시 방문하면 에러가 발생하게됨

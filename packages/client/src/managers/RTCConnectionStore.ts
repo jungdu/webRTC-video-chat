@@ -12,6 +12,10 @@ export default class RTCConnectionStore {
     window.answerConnections = this.answerConnections;
     // @ts-ignore
     window.dataChannels = this.dataChannels;
+
+    window.addEventListener('beforeunload', () => {
+      this.closeConnections();
+    })
   }
   
   addDataChannel(socketId: string, dataChannel: RTCDataChannel){

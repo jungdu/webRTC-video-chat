@@ -75,8 +75,8 @@ export default function useRTCConnection() {
 			});
 
 			return () => {
-				rtcConnectionManager.deleteSocketHandler(currentSocket);
 				rtcConnectionManager.closeConnections();
+				rtcConnectionManager.deleteSocketHandler(currentSocket);
 				setChatMessages([])
 			};
 		}
