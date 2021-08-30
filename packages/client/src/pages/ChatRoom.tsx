@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
-import { chatRoomManager, rtcConnectionManager, socketManager, currentUserManager } from "managers";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { chatRoomManager, rtcConnectionManager, socketManager, currentUserManager, mediaStreamManager } from "managers";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+	chatUserAtomFamily,
 	chatUsersIdListState,
 	connectedSocketIdState,
 } from "recoilStates/chatStates";
@@ -12,7 +13,7 @@ import StyledUserList from "components/UserList/StyledUserList";
 import useRTCConnection from "hooks/useRTCConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 import MediaSetting from "components/MediaSetting";
-import { useSetChatUser } from "hooks/useRecoilCallbacks";
+import { useResetChatUser, useSetChatUser } from "hooks/useRecoilCallbacks";
 import { bottomHeightPx, RightPanelMode } from "./pageVariables";
 import BottomPanel from "components/BottomPanel/BottomPanel";
 
@@ -57,6 +58,7 @@ const ChatRoom: React.FC = () => {
 	const [finishedSetting, setFinishedSetting] = useState<boolean>(false);
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
 	const setChatUser = useSetChatUser();
+	const resetChatUser = useResetChatUser();
 	const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("userList");
 	const rightPanelContent = useMemo(() => {
 		switch(rightPanelMode){
@@ -108,6 +110,7 @@ const ChatRoom: React.FC = () => {
 	};
 
 	const leaveRoom = () => {
+		resetChatUser(connectedSocketId!)
 		if (chatRoomId) {
 			chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId);
 		}

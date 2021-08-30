@@ -9,7 +9,8 @@ import CurrentUserManager from "./CurrentUserManager";
 const connectionStore = new RTCConnectionStore();
 const socketManager = new SocketManager();
 const dataChannelManager = new DataChannelManager(connectionStore);
-const mediaStreamManager = new MediaStreamManager();
+const currentUserManager = new CurrentUserManager();
+const mediaStreamManager = new MediaStreamManager(currentUserManager);
 const rtcConnectionManager = new RTCConnectionManager(
 	{
 		dataChannelManager,
@@ -18,7 +19,6 @@ const rtcConnectionManager = new RTCConnectionManager(
 	connectionStore
 );
 const chatRoomManager = new ChatRoomManager();
-const currentUserManager = new CurrentUserManager();
 
 export {
 	socketManager,

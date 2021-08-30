@@ -1,3 +1,4 @@
+import CurrentUserManager from "./CurrentUserManager";
 
 interface MediaStreamManagerHandlers {
   onNewTrack: (trackEvent: RTCTrackEvent, socketId: string) => void;
@@ -5,15 +6,15 @@ interface MediaStreamManagerHandlers {
 }
 
 export default class MediaStreamManager {
-  currentUserStream: MediaStream | null = null;
+  currentUserManager:CurrentUserManager;
   handlers: MediaStreamManagerHandlers = {
     onNewTrack: () => {},
   }
-  
-  private setCurrentUserStream(stream: MediaStream){
-    this.currentUserStream = stream;
-  }
 
+  constructor(currentUserManager: CurrentUserManager){
+    this.currentUserManager = currentUserManager;    
+  }
+  
   getUserMedia(){
     return new Promise<MediaStream>((resolve, reject) => {
       window.navigator.getUserMedia({
@@ -31,17 +32,17 @@ export default class MediaStreamManager {
     this.handlers = handlers;
   }
   
-  setUserMediaStream(stream: MediaStream){
-    this.setCurrentUserStream(stream);
-  }
-
   addRTCMediaStreamHandler(rtcPeerConnection: RTCPeerConnection, socketId: string){
     rtcPeerConnection.ontrack = (event) => {
       this.handlers.onNewTrack(event, socketId)
     };
 
-    if(this.currentUserStream){
-      rtcPeerConnection.addTrack(this.currentUserStream.getTracks()[0], this.currentUserStream);
+    const currentUserStream = this.currentUserManager.getMediaStream();
+    if(currentUserStream){
+      rtcPeerConnection.addTrack(currentUserStream.getTracks()[0], currentUserStream);
+    }else{
+      // RTC offer가 currentUserStream이 없는 경우에 addTransceiver를 추가해주지 않으면 stream들을 받지 못함.
+      rtcPeerConnection.addTransceiver("video");
     }
   }
 }

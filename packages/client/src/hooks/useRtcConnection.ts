@@ -31,45 +31,52 @@ export default function useRTCConnection() {
 			rtcConnectionManager.addSocketHandler(currentSocket);
 
 			dataChannelManager.setHandlers({
-				onOpen: function(socketId, dataChannel){
-					setChatUsersIdList((chatUsersIdList) => pushUniqueItem(chatUsersIdList, socketId))
+				onOpen: function (socketId, dataChannel) {
+					setChatUsersIdList((chatUsersIdList) =>
+						pushUniqueItem(chatUsersIdList, socketId)
+					);
 					dataChannelManager.sendMessage(dataChannel, {
 						type: "SetUserName",
 						value: currentUserManager.getUserName(),
-					})
+					});
 				},
 				onMessage: function (message: DataChannelMessage, socketId: string) {
-					switch(message.type){
+					switch (message.type) {
 						case "ChatMessage":
-						setChatMessages((messages) => [
-							...messages,
-							{
-								userName: message.userName,
-								value: message.value,
-								time: new Date().getTime(),
-							},
-						]);
-						break;
+							setChatMessages((messages) => [
+								...messages,
+								{
+									userName: message.userName,
+									value: message.value,
+									time: new Date().getTime(),
+								},
+							]);
+							break;
 						case "SetUserName":
 							updateChatUser(socketId, {
-								userName: message.value
-							})
-						break;
+								userName: message.value,
+							});
+							break;
 						default:
 							throw new Error("Undefined type of message");
 					}
 				},
 				onClose: function (socketId) {
-					setChatUsersIdList((idList) => idList.filter(id => id !== socketId));
-					resetChatUser(socketId)
-				}
+					setChatUsersIdList((idList) =>
+						idList.filter((id) => id !== socketId)
+					);
+					resetChatUser(socketId);
+				},
 			});
 
 			mediaStreamManager.setHandlers({
 				onNewTrack: function (rtcTrackEvent, socketId) {
-					const streams = [...rtcTrackEvent.streams]
+					const streams =
+						rtcTrackEvent.streams && rtcTrackEvent.streams.length > 0
+							? [...rtcTrackEvent.streams]
+							: null;
 					updateChatUser(socketId, {
-						mediaStream:streams,
+						mediaStream: streams,
 					});
 				},
 			});
@@ -77,7 +84,7 @@ export default function useRTCConnection() {
 			return () => {
 				rtcConnectionManager.closeConnections();
 				rtcConnectionManager.deleteSocketHandler(currentSocket);
-				setChatMessages([])
+				setChatMessages([]);
 			};
 		}
 	}, [connectedSocketId]);
