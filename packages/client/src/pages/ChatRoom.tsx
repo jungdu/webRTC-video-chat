@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
-import { chatRoomManager, rtcConnectionManager, socketManager, currentUserManager, mediaStreamManager } from "managers";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-	chatUserAtomFamily,
+	chatRoomManager,
+	rtcConnectionManager,
+	socketManager,
+	currentUserManager,
+} from "managers";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
 	chatUsersIdListState,
 	connectedSocketIdState,
 } from "recoilStates/chatStates";
@@ -16,6 +20,7 @@ import MediaSetting from "components/MediaSetting";
 import { useResetChatUser, useSetChatUser } from "hooks/useRecoilCallbacks";
 import { bottomHeightPx, RightPanelMode } from "./pageVariables";
 import BottomPanel from "components/BottomPanel/BottomPanel";
+import CloseIcon from "components/icons/CloseIcon";
 
 const Self = styled.div`
 	height: 100vh;
@@ -34,14 +39,24 @@ const TextChat = styled(StyledTextChat)`
 
 const UserList = styled(StyledUserList)`
 	height: 100%;
-`
+`;
 
 const RightPanel = styled.div`
+	position: relative;
 	width: 420px;
 	background-color: #fff;
 	border-radius: 5px;
 	height: 100%;
 	flex-shrink: 0;
+`;
+
+const PanelCloseButton = styled(CloseIcon)`
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	top: 19px;
+	right: 7px;
+	cursor: pointer;
 `;
 
 const LeftPanel = styled.div`
@@ -59,18 +74,36 @@ const ChatRoom: React.FC = () => {
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
 	const setChatUser = useSetChatUser();
 	const resetChatUser = useResetChatUser();
-	const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("userList");
+	const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>(
+		"messageList"
+	);
 	const rightPanelContent = useMemo(() => {
-		switch(rightPanelMode){
+		const handleClosePanelButton = () => {
+			setRightPanelMode("none");
+		};
+
+		switch (rightPanelMode) {
 			case "messageList":
-				return <TextChat />
-			case "userList": 
-				return <UserList />
+				return (
+					<RightPanel>
+						<TextChat />
+						<PanelCloseButton onClick={handleClosePanelButton} />
+					</RightPanel>
+				);
+			case "userList":
+				return (
+					<RightPanel>
+						<UserList />
+						<PanelCloseButton onClick={handleClosePanelButton} />
+					</RightPanel>
+				);
+			case "none":
+				return null;
 			default:
 				throw new Error("Invalid type of right panel mode");
 		}
-	}, [rightPanelMode])
-	
+	}, [rightPanelMode]);
+
 	const { chatRoomId } = useParams<{
 		chatRoomId?: string;
 	}>();
@@ -92,14 +125,11 @@ const ChatRoom: React.FC = () => {
 		setChatUsersIdList(joinedRoom.userSocketIds);
 
 		const userMediaStream = currentUserManager.getMediaStream();
-		setChatUser(
-			connectedSocketId,
-			{
-				mediaStream: userMediaStream ? [userMediaStream] : null,
-				userName: currentUserManager.getUserName(),
-			}
-		);
-		
+		setChatUser(connectedSocketId, {
+			mediaStream: userMediaStream ? [userMediaStream] : null,
+			userName: currentUserManager.getUserName(),
+		});
+
 		const otherUsersSocketId = joinedRoom.userSocketIds.filter(
 			(userSocketId) => userSocketId !== connectedSocketId
 		);
@@ -110,7 +140,7 @@ const ChatRoom: React.FC = () => {
 	};
 
 	const leaveRoom = () => {
-		resetChatUser(connectedSocketId!)
+		resetChatUser(connectedSocketId!);
 		if (chatRoomId) {
 			chatRoomManager.leaveRoom(socketManager.getCurrentSocket(), chatRoomId);
 		}
@@ -132,11 +162,9 @@ const ChatRoom: React.FC = () => {
 				<LeftPanel>
 					<VideoList />
 				</LeftPanel>
-				<RightPanel>
-					{rightPanelContent}
-				</RightPanel>
+				{rightPanelContent}
 			</Content>
-			<BottomPanel onSetRightPanelMode={setRightPanelMode}/>
+			<BottomPanel onSetRightPanelMode={setRightPanelMode} />
 		</Self>
 	) : (
 		<MediaSetting
@@ -144,7 +172,7 @@ const ChatRoom: React.FC = () => {
 				currentUserManager.initialize({
 					mediaStream,
 					userName,
-				})
+				});
 				setFinishedSetting(true);
 			}}
 		/>
