@@ -3,10 +3,17 @@ import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
 import { chatUserAtomFamily } from "recoilStates/chatStates";
 import VideoCamIconOrig from "components/icons/VideoCamIcon";
+import VideoCamOffIconOrig from "components/icons/VideoCamOffIcon";
+import { css } from "@emotion/react";
 
 interface UserItemProps {
 	userId: string;
 }
+
+const camIconStyle = css`
+	margin-left: auto;
+	margin-right: 10px;
+`
 
 const Self = styled.div`
 	display: flex;
@@ -20,8 +27,11 @@ const Self = styled.div`
 `;
 
 const VideoCamIcon = styled(VideoCamIconOrig)`
-	margin-left: auto;
-	margin-right: 10px;
+	${camIconStyle}
+`;
+
+const VideoCamOffIcon = styled(VideoCamOffIconOrig)`
+	${camIconStyle}
 `;
 
 const GreenDot = styled.div`
@@ -33,11 +43,12 @@ const GreenDot = styled.div`
 
 const UserItem: React.FC<UserItemProps> = ({ userId }) => {
 	const chatUser = useRecoilValue(chatUserAtomFamily(userId));
+	const hasMediaStream =	!!chatUser.mediaStream;
 
 	return (
 		<Self>
 			{chatUser.userName || "Unknown"}
-			<VideoCamIcon />
+			{hasMediaStream ? < VideoCamIcon /> : <VideoCamOffIcon/>}
 			<GreenDot />
 		</Self>
 	);
