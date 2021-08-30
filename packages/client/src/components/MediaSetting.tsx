@@ -44,9 +44,18 @@ const StyledErrorMessage = styled.div`
   font-size: 13px;
 `
 
+const NoCameraMessage = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 17px;
+`
+
 const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const mediaStreamRef = useRef<null | MediaStream>(null);
+  const [mediaStream, setMediaStream] = useState<null | MediaStream>(null);
   const [errorMessage, setErrorMessage] = useState<string|null>(null);
 
   const {
@@ -56,7 +65,7 @@ const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
   
   useEffect(() => {
     mediaStreamManager.getUserMedia().then((stream) => {
-      mediaStreamRef.current = stream;
+      setMediaStream(stream);
       mediaStreamManager.setUserMediaStream(stream);
       if(videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -77,7 +86,7 @@ const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
     if(!userName){
       setErrorMessage("USER NAME을 설정해 주세요.")
     }else{
-      onFinishMediaSetting(mediaStreamRef.current, userName);
+      onFinishMediaSetting(mediaStream, userName);
     }
   }
 
@@ -89,6 +98,9 @@ const MediaSetting: React.FC<MediaSettingProps> = ({onFinishMediaSetting}) => {
   
   return <Self>
     <VideoContainer heightPercent={70}>
+      {!mediaStream && <NoCameraMessage>
+        카메라 없음
+      </NoCameraMessage>}
       <StyledVideo ref={videoRef} onLoadedMetadata={handleLoadedMetadata}/>
     </VideoContainer>
     <StyledInput placeholder="USER NAME" onChange={handleChangeUserName} value={userName}/>
