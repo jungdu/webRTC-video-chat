@@ -14,7 +14,7 @@ import {
 } from "recoilStates/chatStates";
 import StyledTextChat from "components/TextChat/StyledTextChat";
 import StyledUserList from "components/UserList/StyledUserList";
-import useRTCConnection from "hooks/useRTCConnection";
+import useRtcConnection from "hooks/useRtcConnection";
 import StyledVideoList from "components/VideoChat/StyledVideoList";
 import MediaSetting from "components/MediaSetting";
 import { useResetChatUser, useSetChatUser } from "hooks/useRecoilCallbacks";
@@ -68,7 +68,7 @@ const VideoList = styled(StyledVideoList)`
 `;
 
 const ChatRoom: React.FC = () => {
-	useRTCConnection();
+	useRtcConnection();
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
 	const [finishedSetting, setFinishedSetting] = useState<boolean>(false);
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);

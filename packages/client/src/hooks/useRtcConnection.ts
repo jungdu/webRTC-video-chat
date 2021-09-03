@@ -17,7 +17,7 @@ import { pushUniqueItem } from "utils";
 import { useResetChatUser, useUpdateChatUser } from "./useRecoilCallbacks";
 
 // TODO 여기저기 메니저를 참조해서 번잡한데 구조적인 수정이 필요함
-export default function useRTCConnection() {
+export default function useRtcConnection() {
 	const connectedSocketId = useRecoilValue(connectedSocketIdState);
 	const setChatMessages = useSetRecoilState(chatMessagesState);
 	const setChatUsersIdList = useSetRecoilState(chatUsersIdListState);
